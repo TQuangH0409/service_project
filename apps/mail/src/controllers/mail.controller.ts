@@ -282,3 +282,5 @@ export async function sendMailResetPassword(params: {
     });
     return success.ok({ message: "success" });
 }
+
+export async function TestPullRequest(params: any) {}
