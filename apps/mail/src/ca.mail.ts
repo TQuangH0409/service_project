@@ -19,16 +19,16 @@ function main(): void {
             logger.info("Listening on: %s:%d", host, port);
         });
     };
-    connectMongo(() => {
-        if (connectedToRedis()) {
+    // connectMongo(() => {
+        // if (connectedToRedis()) {
             startApp();
-        }
-    });
-    connectRedis(() => {
-        if (connectedToMongo()) {
-            startApp();
-        }
-    });
+        // }
+    // });
+    // connectRedis(() => {
+        // if (connectedToMongo()) {
+            // startApp();
+        // }
+    // });
 }
 
 main();

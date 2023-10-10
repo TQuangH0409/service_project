@@ -6,113 +6,74 @@ import Mail from "nodemailer/lib/mailer";
 import { configs } from "../configs";
 import Email from "../models/mail";
 import History from "../models/history";
-import { getEmailGroup } from "../services/group.service";
 import logger from "logger";
 import smtpPool from "nodemailer/lib/smtp-pool";
 import { isTypedArray } from "util/types";
 
-// const configSendMail = sendmail({
-//     logger: {
-//         debug: console.log,
-//         info: console.info,
-//         warn: console.warn,
-//         error: console.error
-//       },
-//       silent: false,
-//       devPort: 1025, // Default: False
-//       devHost: 'localhost', // Default: localhost
-//       smtpPort: 587, // Default: 25
-//       smtpHost: '10.33.3.33'
+// async function getParams(details: string): Promise<Result> {
+//     const listDetails = details;
+//     const a2 = [];
+//     const a1 = listDetails.split("}}");
+//     a1.pop();
+//     for (const q of a1) {
+//         const qs = q.split("{{");
+//         a2.push(qs[1]);
+//     }
+//     const set = [...new Set(a2)];
+//     return success.ok(set);
+// }
 
-// })
+// export async function createT(params: {
+//     code: string;
+//     subject: string;
+//     content: string;
+// }): Promise<Result> {
+//     const t = new Email({
+//         id: v1(),
+//         code: params.code,
+//         subject: params.subject,
+//         content: params.content,
+//         created_time: new Date(),
+//         created_by: "Ducnv",
+//         updated_time: new Date(),
+//         updated_by: "Ducnv",
+//         params_content: getParams(params.content),
+//         params_subject: getParams(params.subject),
+//     });
+//     t.save();
+//     return success.ok(t);
+// }
 
-// a({
-
-// })
-// const sendEnquiryEmail = function (enquiryData) {
-//     let FromUserName = 'Chat2cars';
-//     nodemailer.createTestAccount((err, account) => {
-//         var transporter = nodemailer.createTransport(smtpPool({
-
-//             host: 'smtp.gmail.com',
-//             port: 587,
-//              auth: {
-//                 user: 'user@gmail.com',
-//                 pass: 'mypass'
+// export async function getParamsByCode(code: string): Promise<Result> {
+//     const errorTemplate = {
+//         status: HttpStatus.NOT_FOUND,
+//         code: "NOT_FOUND_TEMPLATE_EMAIL",
+//         errors: [
+//             {
+//                 location: "body",
+//                 param: "code",
 //             },
-//             maxConnections: 5,
-//             maxMessages: 10
-//     }));
+//         ],
+//     };
+//     const checkTemplate = await Email.findOne({ code: code });
+//     if (!checkTemplate) {
+//         return errorTemplate;
+//     }
+//     checkTemplate.params_content.push(...checkTemplate.params_subject);
+//     const infoParams = [...new Set(checkTemplate.params_content)];
+//     return success.ok(infoParams);
+// }
 
-async function getParams(details: string): Promise<Result> {
-    const listDetails = details;
-    const a2 = [];
-    const a1 = listDetails.split("}}");
-    a1.pop();
-    for (const q of a1) {
-        const qs = q.split("{{");
-        a2.push(qs[1]);
-    }
-    const set = [...new Set(a2)];
-    return success.ok(set);
-}
-
-export async function createT(params: {
-    code: string;
-    subject: string;
-    content: string;
-}): Promise<Result> {
-    const t = new Email({
-        id: v1(),
-        code: params.code,
-        subject: params.subject,
-        content: params.content,
-        created_time: new Date(),
-        created_by: "Ducnv",
-        updated_time: new Date(),
-        updated_by: "Ducnv",
-        params_content: getParams(params.content),
-        params_subject: getParams(params.subject),
-    });
-    t.save();
-    return success.ok(t);
-}
-
-export async function getParamsByCode(code: string): Promise<Result> {
-    const errorTemplate = {
-        status: HttpStatus.NOT_FOUND,
-        code: "NOT_FOUND_TEMPLATE_EMAIL",
-        errors: [
-            {
-                location: "body",
-                param: "code",
-            },
-        ],
-    };
-    const checkTemplate = await Email.findOne({ code: code });
-    if (!checkTemplate) {
-        return errorTemplate;
-    }
-    checkTemplate.params_content.push(...checkTemplate.params_subject);
-    const infoParams = [...new Set(checkTemplate.params_content)];
-    return success.ok(infoParams);
-}
-
-const transporter = nodemailer.createTransport(
-    new smtpPool({
-        pool: true,
-        host: configs.mail.host,
-        port: Number(configs.mail.port),
-        secure: false,
-        auth: {
-            user: configs.mail.user,
-            pass: configs.mail.pass,
-        },
-        tls: {
-            rejectUnauthorized: false,
-        },
-    })
-);
+let transporter = nodemailer.createTransport({
+    host: `${configs.mail.host}`, // SMTP server address (usually mail.your-domain.com)
+    port: Number(`${configs.mail.port}`), // Port for SMTP (usually 465)
+    secure: true, // Usually true if connecting to port 465
+    auth: {
+        user: configs.mail.user, // Your email address
+        pass: configs.mail.pass, // Password (for gmail, your app password)
+        // ⚠️ For better security, use environment variables set on the server for these values when deploying
+    },
+});
 
 export async function sendMailBasic(params: {
     code: string;
@@ -173,16 +134,8 @@ export async function sendMailBasic(params: {
     checkTemplate.subject = checkTemplate.subject.replace(re_2, function (mt) {
         return map_param_subject[mt as keyof typeof map_param_subject];
     });
-    let emailGroup;
-    if (params.info.group) {
-        emailGroup = await getEmailGroup(params.info.group as string);
-    }
-    let email_to;
-    if (params.info.group) {
-        email_to = emailGroup;
-    } else {
-        email_to = params.email;
-    }
+
+    let email_to = params.email;
 
     let mailOptions;
     if (params.info.group && email_to) {
@@ -253,34 +206,54 @@ export async function sendMailBasic(params: {
     return success.ok({ code: HttpStatus.OK });
 }
 
-export async function sendMailResetPassword(params: {
-    email: string;
-    link: string;
-}): Promise<Result> {
-    const mailOptions: Mail.Options = {
-        from: `FIS - IT HELP DESK <fis-itservices@srv.fis.vn>`,
-        to: `${params.email}`,
-        subject: `[ServiceDesk] Đặt lại mật khẩu cho tài khoản Service Desk của bạn`,
+// export async function sendMailResetPassword(params: {
+//     email: string;
+//     link: string;
+// }): Promise<Result> {
+//     const mailOptions: Mail.Options = {
+//         from: `FIS - IT HELP DESK <fis-itservices@srv.fis.vn>`,
+//         to: `${params.email}`,
+//         subject: `[ServiceDesk] Đặt lại mật khẩu cho tài khoản Service Desk của bạn`,
+//         html: `
+//         <div>Chào chào ${params.email},</div>
+//         <br/>
+//         <div>
+//             <span>Gần đây bạn có yêu cầu tạo lại mật khẩu tài khoản của bạn trên hệ thống ServiceDesk, để tiếp tục quá trình này, hãy nhấn vào </span>
+//             <a href = "${params.link}">link</a>
+//         </div>
+//         <div>Liên kết này sẽ hết hạn trong vòng 10 phút.</div>
+//         <br/>
+//         <div>Trân trọng,</div>
+//         <div>IT HelpDesk Team.</div>`,
+//     };
+
+//     await transporter.sendMail(mailOptions).catch((e) => {
+//         throw new HttpError({
+//             status: HttpStatus.INTERNAL_SERVER,
+//             description: e,
+//         });
+//     });
+//     return success.ok({ message: "success" });
+// }
+
+// export async function TestPullRequest(params: any) {}
+
+export async function sendMailGoogle() {
+    // Async function enables allows handling of promises with await
+
+    // First, define send settings by creating a new transporter
+
+    // Define and send message inside transporter.sendEmail() and await info about send from promise:
+    let info = await transporter.sendMail({
+        from: "<trongquangvu80@gmail.com",
+        to: "quang.vt198256@sis.hust.edu.vn",
+        subject: "Testing, testing, 123",
         html: `
-        <div>Chào chào ${params.email},</div>
-        <br/>
-        <div>
-            <span>Gần đây bạn có yêu cầu tạo lại mật khẩu tài khoản của bạn trên hệ thống ServiceDesk, để tiếp tục quá trình này, hãy nhấn vào </span>
-            <a href = "${params.link}">link</a>
-        </div>
-        <div>Liên kết này sẽ hết hạn trong vòng 10 phút.</div>
-        <br/>
-        <div>Trân trọng,</div>
-        <div>IT HelpDesk Team.</div>`,
-    };
-
-    await transporter.sendMail(mailOptions).catch((e) => {
-        throw new HttpError({
-            status: HttpStatus.INTERNAL_SERVER,
-            description: e,
-        });
+    <h1>Hello there</h1>
+    <p>Isn't NodeMailer useful?</p>
+    `,
     });
-    return success.ok({ message: "success" });
-}
 
-export async function TestPullRequest(params: any) {}
+    console.log(info.messageId);
+    return success.ok(info.messageId);
+}
