@@ -7,5 +7,3 @@
 **/tsconfig.tsbuildinfo
 **/.eslintcache
 **/.vscode
-**/.docker-compose.yaml
-**/.Dockerfile
