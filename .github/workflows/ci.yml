@@ -50,7 +50,7 @@ jobs:
     - name: pnpm build
       run: pnpm build
     - name: permission
-      rum: sudo usermod -aG docker $USER
+      run: sudo usermod -aG docker $USER
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
     - name: Set up Docker Buildx
