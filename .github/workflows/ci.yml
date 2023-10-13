@@ -51,6 +51,10 @@ jobs:
       run: pnpm install
     - name: pnpm build
       run: pnpm build
+    - name: stop docker
+      run: docker rm -f gateway auth file mail
+    - name: deploy
+      run : docker-compose up -d
     # - name: Audit
     #   run: pnpm audit
     # - name: Cache TypeScript and Jest
