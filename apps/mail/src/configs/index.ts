@@ -21,10 +21,10 @@ export const configs = {
         port: process.env.CA_PORT_MAIL_SERVER || "",
     },
     mongo: {
-        addresses: process.env.CA_FILE_MONGO_ADDRESSES || "127.0.0.1:27001",
-        username: process.env.CA_FILE_MONGO_USERNAME || "root",
-        password: process.env.CA_FILE_MONGO_PASSWORD || "",
-        dbName: process.env.CA_FILE_MONGO_DB_NAME || "file",
+        addresses: process.env.CA_MAIL_MONGO_ADDRESSES || "127.0.0.1:27001",
+        username: process.env.CA_MAIL_MONGO_USERNAME || "root",
+        password: process.env.CA_MAIL_MONGO_PASSWORD || "",
+        dbName: process.env.CA_MAIL_MONGO_DB_NAME || "file",
         templateUri:
             "mongodb+srv://${username}:${password}@${addresses}/${dbName}",
         getUri: function (): string {
