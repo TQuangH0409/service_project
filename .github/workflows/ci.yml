@@ -55,12 +55,12 @@ jobs:
     - name: pnpm build
       run: pnpm build
     - name: 'Build and push Docker Image'
-        uses: cloudposse/github-action-docker-build-push@main
-        with:
-          image: 'vutrongquang/'
-          registry: docker.io
-          login: "${{ secrets.DOCKERHUB_USERNAME }}"
-          password: "${{ secrets.DOCKERHUB_PASSWORD }}"
+      uses: cloudposse/github-action-docker-build-push@main
+      with:
+        image: 'vutrongquang/'
+        registry: docker.io
+        login: "${{ secrets.DOCKERHUB_USERNAME }}"
+        password: "${{ secrets.DOCKERHUB_PASSWORD }}"
     # - name: stop docker
     #   run: sudo docker rm -f gateway auth file mail
     # - name: deploy
