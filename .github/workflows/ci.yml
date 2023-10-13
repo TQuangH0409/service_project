@@ -33,8 +33,8 @@ jobs:
         git config --global user.email "trongquangvu80@gmail.com"
     - name: Checkout Commit
       uses: actions/checkout@v3
-    - name: Install npm
-      uses: npm i 
+    # - name: Install npm
+    #   uses: npm i 
     - name: Install pnpm
       uses: pnpm/action-setup@v2.4.0
       with:
@@ -49,8 +49,8 @@ jobs:
       run: npm add --global npm@7
     - name: pnpm install
       run: pnpm install
-    - name: pnpm build
-      run: pnpm build
+    # - name: pnpm build
+    #   run: pnpm build
     # - name: Audit
     #   run: pnpm audit
     # - name: Cache TypeScript and Jest
