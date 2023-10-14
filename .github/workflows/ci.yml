@@ -3,7 +3,9 @@ name: CI
 on: [push, pull_request]
 
 permissions:
-  contents: read # to fetch code (actions/checkout)
+  actions: read
+  contents: read
+  security-events: write # to fetch code (actions/checkout)
 
 jobs:
   # build:
@@ -50,6 +52,10 @@ jobs:
     #   - name: pnpm build
     #     run: pnpm build
   docker: 
+    permissions:
+      actions: read
+      contents: read
+      security-events: write # to fetch code (actions/checkout)
     strategy:
       fail-fast: false
       matrix:
