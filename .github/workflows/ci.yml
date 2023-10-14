@@ -54,7 +54,7 @@ jobs:
   docker: 
     permissions:
       actions: read
-      contents: read
+      contents: read, write
       security-events: write # to fetch code (actions/checkout)
     strategy:
       fail-fast: false
