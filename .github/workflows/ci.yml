@@ -49,7 +49,6 @@ jobs:
         run: pnpm install
       - name: pnpm build
         run: pnpm build
-      - name: docker
-        run:
-          using: 'docker'
-          image: 'Dockerfile'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
