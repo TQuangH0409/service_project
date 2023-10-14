@@ -53,7 +53,9 @@ jobs:
     #     run: pnpm build
   docker: 
     permissions:
+      actions: write
       contents: write
+      security-events: write # to fetch code (actions/checkout)
     strategy:
       fail-fast: false
       matrix:
