@@ -50,6 +50,6 @@ jobs:
       - name: pnpm build
         run: pnpm build
       - name: docker
-        runs:
+        run:
           using: 'docker'
           image: 'Dockerfile'
