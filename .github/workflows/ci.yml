@@ -49,47 +49,6 @@ jobs:
         run: pnpm install
       - name: pnpm build
         run: pnpm build
-      # - name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v3
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v3
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
-      # - name: Build and push
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     push: true
-      #     tags: user/app:latest
-    # - name: stop docker
-    #   run: sudo docker rm -f gateway auth file mail
-    # - name: deploy
-    #   run : sudo docker-compose up -d
-    # - name: Audit
-    #   run: pnpm audit
-    # - name: Cache TypeScript and Jest
-    # uses: actions/cache@v3
-    # with:
-    # path: |
-    # packages/*/lib
-    # packages/*/tsconfig.tsbuildinfo
-    # privatePackages/*/lib
-    # privatePackages/*/tsconfig.tsbuildinfo
-    # .jest-cache
-    # .verdaccio-cache
-    # key: ts-jest-${{ matrix.platform }}-${{ matrix.node }}-${{ github.run_id }}
-    # restore-keys: ts-jest-${{ matrix.platform }}-${{ matrix.node }}-
-    # - name: run tests (main)
-    #   timeout-minutes: 60
-    #   if: github.ref == 'refs/heads/main'
-    #   run: pnpm run test-main
-    #   env:
-    #     PNPM_WORKERS: 3
-    # - name: run tests (branch)
-    #   timeout-minutes: 60
-    #   if: github.ref != 'refs/heads/main'
-    #   run: pnpm run test-branch
-    #   env:
-    #     PNPM_WORKERS: 3
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
