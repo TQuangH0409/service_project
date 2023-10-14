@@ -52,10 +52,10 @@ jobs:
     #   - name: pnpm build
     #     run: pnpm build
   docker: 
-    permissions:
-      actions: [read, write]
-      contents: [read, write]
-      security-events: write # to fetch code (actions/checkout)
+    # permissions:
+    #   actions: [read, write]
+    #   contents: [read, write]
+    #   security-events: write # to fetch code (actions/checkout)
     strategy:
       fail-fast: false
       matrix:
@@ -70,11 +70,11 @@ jobs:
     runs-on: ${{matrix.platform}}
 
     steps:
-      - name: Configure Git
-        run: |
-          git config --global core.autocrlf false
-          git config --global user.name "quangh0409"
-          git config --global user.email "trongquangvu80@gmail.com"
+      # - name: Configure Git
+      #   run: |
+      #     git config --global core.autocrlf false
+      #     git config --global user.name "quangh0409"
+      #     git config --global user.email "trongquangvu80@gmail.com"
       - name: Checkout Commit
         uses: actions/checkout@v4
 
