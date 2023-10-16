@@ -8,33 +8,40 @@ permissions:
   security-events: write # to fetch code (actions/checkout)
 
 jobs:
-  # build:
-  # concurrency:
-  #   group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.platform }}-${{ matrix.node }}
-  #   cancel-in-progress: true
+  build:
+  concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.platform }}-${{ matrix.node }}
+    cancel-in-progress: true
 
-  # strategy:
-  #   fail-fast: false
-  #   matrix:
-  #     node:
-  #       # - '16.14'
-  #       - "18"
-  #       # - '20'
-  #     platform:
-  #       - self-hosted
-  #       # - windows-latest
+  strategy:
+    fail-fast: false
+    matrix:
+      node:
+        # - '16.14'
+        - "18"
+        # - '20'
+      platform:
+        - self-hosted
+        # - windows-latest
 
-  # name: "${{matrix.platform}} / Node.js ${{ matrix.node }}"
-  # runs-on: ${{matrix.platform}}
+  name: "${{matrix.platform}} / Node.js ${{ matrix.node }}"
+  runs-on: ${{matrix.platform}}
 
-  # steps:
-  #   - name: Configure Git
-  #     run: |
-  #       git config --global core.autocrlf false
-  #       git config --global user.name "quangh0409"
-  #       git config --global user.email "trongquangvu80@gmail.com"
-  #   - name: Checkout Commit
-  #     uses: actions/checkout@v4
+  steps:
+    - name: Configure Git
+      run: |
+        git config --global core.autocrlf false
+        git config --global user.name "quangh0409"
+        git config --global user.email "trongquangvu80@gmail.com"
+    - name: Checkout Commit
+      uses: actions/checkout@v4
+
+    - name: create .env
+      run: |
+        cp ./nginx/.env.sample ./nginx/.env
+        cp ./apps/auth/.env.sample ./apps/auth/.env
+        cp ./apps/file/.env.sample ./apps/file/.env
+        cp ./apps/mail/.env.sample ./apps/mail/.env
   #   - name: Install pnpm
   #     uses: pnpm/action-setup@v2.4.0
   #     with:
@@ -52,6 +59,7 @@ jobs:
   #   - name: pnpm build
   #     run: pnpm build
   docker:
+    needs: build
     strategy:
       fail-fast: false
       matrix:
