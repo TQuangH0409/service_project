@@ -69,13 +69,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: stop docker
-        run:  CONTAINER_ID=$(docker ps -a | awk '{if ($2 ~ /service_project/) print $1}')
-              if [ -n "$CONTAINER_ID" ]; then
-                docker rm -f $CONTAINER_ID
-              else
-                echo "Không có container nào sử dụng hình ảnh 'service_project'."
-              fi
-
+        run: docker ps -a | awk '$2 ~ /service_project/ {print $1}' | xargs -r docker rm -f
+        
       - name: create .env
         run: |
           cp ./nginx/.env.sample ./nginx/.env
