@@ -86,8 +86,8 @@ jobs:
           context: ./
           file: ./Dockerfile
           tags: |
-            vutrongquang/gateway
-            vutrongquang/auth
-            vutrongquang/file
-            vutrongquang/mail
+            type=ref,vutrongquang/gateway
+            type=ref,vutrongquang/auth
+            type=ref,vutrongquang/file
+            type=ref,vutrongquang/mail
           push: true
