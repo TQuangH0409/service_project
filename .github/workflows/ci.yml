@@ -82,12 +82,5 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v5
-        with:
-          context: ./
-          file: ./Dockerfile
-          tags: |
-            type=ref,vutrongquang/gateway
-            type=ref,vutrongquang/auth
-            type=ref,vutrongquang/file
-            type=ref,vutrongquang/mail
-          push: true
+        run: |
+        docker-compose up
