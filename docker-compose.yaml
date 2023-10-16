@@ -15,7 +15,7 @@ services:
       - auth
       - mail
       - file
-    image: vutrongquang/gateway
+    image: docker.io/vutrongquang/gateway
 
   auth:
     container_name: auth 
@@ -30,7 +30,7 @@ services:
       - 6801:6801
     user: root
     env_file: ./apps/auth/.env
-    image: vutrongquang/auth
+    image: docker.io/vutrongquang/auth
 
   file:
     container_name: file
@@ -45,7 +45,7 @@ services:
       - 6807:6807
     user: root
     env_file: ./apps/file/.env
-    image: vutrongquang/file
+    image: docker.io/vutrongquang/file
 
   mail:
     container_name: mail
@@ -60,7 +60,7 @@ services:
       - 6803:6803
     user: root
     env_file: ./apps/mail/.env
-    image: vutrongquang/mail
+    image: docker.io/vutrongquang/mail
 
 networks:
   default:
