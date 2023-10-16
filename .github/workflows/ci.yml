@@ -85,5 +85,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and deyloy and push
+      - name: Build and deyloy
         run: docker-compose up -d
+
+      - name: Push
+        users: ./
+        with: 
+          push: true
+          tags: |
+            vutrongquang/gateway
+            vutrongquang/file
+            vutrongquang/auth
+            vutrongquang/mail
