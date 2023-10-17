@@ -98,6 +98,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ./Dockerfile
+          build-args: module
           push: true
           tags: |
             docker.io/vutrongquang/gateway
