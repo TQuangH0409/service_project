@@ -54,7 +54,7 @@ jobs:
   #       run: pnpm build
   
   docker:
-    needs: build
+    # needs: build
     strategy:
       fail-fast: false
       matrix:
@@ -62,7 +62,7 @@ jobs:
           - "18"
         platform:
           - self-hosted
-    name: "${{matrix.platform}} / Node.js ${{ matrix.node }}"
+    name: "Docker"
     runs-on: ${{matrix.platform}}
 
     steps:
