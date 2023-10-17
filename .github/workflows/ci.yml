@@ -92,7 +92,7 @@ jobs:
         with:
           push: true
           tags: |
-            vutrongquang/gateway
-            vutrongquang/file
-            vutrongquang/auth
-            vutrongquang/mail
+            docker.io/vutrongquang/gateway
+            docker.io/vutrongquang/file
+            docker.io/vutrongquang/auth
+            docker.io/vutrongquang/mail
