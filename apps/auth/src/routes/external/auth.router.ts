@@ -49,9 +49,8 @@ router.post(
     "/forgot-password",
     forgotPasswordValidator(),
     async (req: Request, _: Response, next: NextFunction) => {
-        const domain = req.get("origin") || "http://localhost";
         const email = req.body.email as string;
-        const result = await forgotPassword({ email, domain });
+        const result = await forgotPassword({ email });
         next(result);
     }
 );

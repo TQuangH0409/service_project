@@ -16,6 +16,7 @@ import {
     verifyAccessCode,
     // getUserById,
     sendMailResetPassword,
+    sendMailGoogleForgotPassword,
     // findDepartmentById,
     // updateUserActivity,
 } from "../services";
@@ -25,7 +26,7 @@ import {
     genResetPasswordToken,
     getPayload,
 } from "../token";
-import { updateUserActivity } from "./user.controller";
+import { getUserByEmail, updateUserActivity } from "./user.controller";
 // import { IDepartmentResBody } from "../interfaces/response";
 
 export async function login(params: {
@@ -268,7 +269,6 @@ export async function newToken(refreshToken: string): Promise<Result> {
 
 export async function forgotPassword(params: {
     email: string;
-    domain?: string;
 }): Promise<Result> {
     const account = await Account.findOne(
         {
@@ -290,17 +290,40 @@ export async function forgotPassword(params: {
         });
     }
 
-    account.token_time = new Date();
-    const token = genResetPasswordToken(
-        account.id,
-        account.token_time,
-        account.password
+    const newPassword = generateRandomPassword(12);
+
+    const sr = Number(configs.saltRounds);
+    const hashedPassword = await bcrypt.hash(
+        newPassword,
+        await bcrypt.genSalt(sr)
     );
-    account.password_token = token;
+
+    account.password = hashedPassword;
+
     await account.save();
-    const link = `${params.domain}/reset-password/${token}`;
-    await sendMailResetPassword(account.email, link);
-    return success.ok({ message: "success" });
+
+    const user = await getUserByEmail({ email: account.email });
+
+    const result = await sendMailGoogleForgotPassword({
+        password: newPassword,
+        username: user.data.fullname,
+        email: account.email,
+    });
+
+    if (!result) {
+        throw error.invalidData({
+            location: "body",
+            param: "email",
+            value: params.email,
+            message: "the email is not correct",
+            description: {
+                vi: "Quá trình gửi mail bị gián đoạn",
+                en: "The email sending process was interrupted",
+            },
+        });
+    }
+
+    return success.ok({ message: result.data.message });
 }
 
 export async function setPassword(params: {
@@ -514,3 +537,16 @@ const accountRolesEmpty = (): ResultError => {
         ],
     };
 };
+
+function generateRandomPassword(length: number): string {
+    const charset =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";
+    let password = "";
+
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        password += charset.charAt(randomIndex);
+    }
+
+    return password;
+}

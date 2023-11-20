@@ -1,6 +1,13 @@
 import { v1 } from "uuid";
 import { getDownloadLinks } from "../services";
-import { error, HttpError, HttpStatus, Result, success } from "app";
+import {
+    error,
+    HttpError,
+    HttpStatus,
+    Result,
+    ResultSuccess,
+    success,
+} from "app";
 import { IUser, UserAction } from "../interfaces/models";
 import mongoose, { FilterQuery, PipelineStage } from "mongoose";
 import { createAccount, updateAccountActivation } from "./account.controller";
@@ -317,7 +324,7 @@ export async function getUserById(params: {
 
 export async function getUserByEmail(params: {
     email: string;
-}): Promise<Result> {
+}): Promise<ResultSuccess> {
     let filter: FilterQuery<IUser>;
 
     filter = { email: params.email };
@@ -329,7 +336,7 @@ export async function getUserByEmail(params: {
         };
         return success.ok(data);
     } else {
-        return error.notFound({
+        throw error.notFound({
             location: "body",
             param: "email",
             value: params.email,
@@ -486,14 +493,10 @@ export async function importUser(params: {
             email: u.email,
             password: u.password,
             is_active: true,
-            roles: ["EU"],
+            roles: u.roles,
         };
     });
-    await Promise.all([
-        createAccount(accounts),
-        // increaseUser(numberUserIncrease),
-        User.insertMany(users),
-    ]);
+    await Promise.all([createAccount(accounts), User.insertMany(users)]);
     return success.created({ inserted: params.data.length });
 }
 

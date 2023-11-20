@@ -39,6 +39,7 @@ export interface UserImport {
     phone?: string;
     password?: string;
     position?: string;
+    roles: string[];
 }
 
 export interface UpdateUserActivationReqBody {

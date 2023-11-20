@@ -5,7 +5,7 @@ import {
 
 import { NextFunction, Request, Response, Router } from "express";
 import {
-    sendMailGoogle,
+    sendMailGoogle, sendMailGoogleForgotPassword,
     // getParamsByCode,
     // sendMailBasic,
     // sendMailOutlook,
@@ -26,12 +26,12 @@ router.get("/", async (req: Request, _: Response, next: NextFunction) => {
     next(result);
 });
 
-// router.post(
-//     "/reset-password",
-//     sendMailResetPasswordValidator(),
-//     async (req: Request, _: Response, next: NextFunction) => {
-//         const body = req.body as SendMailResetPassReqBody;
-//         const result = await sendMailResetPassword(body);
-//         next(result);
-//     }
-// );
+router.post(
+    "/forgot-password",
+    sendMailResetPasswordValidator(),
+    async (req: Request, _: Response, next: NextFunction) => {
+        const body = req.body as SendMailResetPassReqBody;
+        const result = await sendMailGoogleForgotPassword(body);
+        next(result);
+    }
+);

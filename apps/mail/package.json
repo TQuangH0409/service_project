@@ -26,6 +26,7 @@
         "logger": "workspace:*",
         "mongoose": "^7.0.1",
         "nodemailer": "^6.9.1",
+        "googleapis": "^128.0.0",
         "uuid": "^9.0.0"
     },
     "devDependencies": {

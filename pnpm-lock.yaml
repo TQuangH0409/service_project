@@ -223,6 +223,9 @@ importers:
       express-validator:
         specifier: ^6.15.0
         version: 6.15.0
+      googleapis:
+        specifier: ^128.0.0
+        version: 128.0.0
       ioredis:
         specifier: ^5.3.1
         version: 5.3.1
@@ -2012,6 +2015,17 @@ packages:
 
   /googleapis@126.0.1:
     resolution: {integrity: sha512-4N8LLi+hj6ytK3PhE52KcM8iSGhJjtXnCDYB4fp6l+GdLbYz4FoDmx074WqMbl7iYMDN87vqD/8drJkhxW92mQ==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      google-auth-library: 9.1.0
+      googleapis-common: 7.0.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
+  /googleapis@128.0.0:
+    resolution: {integrity: sha512-+sLtVYNazcxaSD84N6rihVX4QiGoqRdnlz2SwmQQkadF31XonDfy4ufk3maMg27+FiySrH0rd7V8p+YJG6cknA==}
     engines: {node: '>=14.0.0'}
     dependencies:
       google-auth-library: 9.1.0
