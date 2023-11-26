@@ -1,3 +1,5 @@
+import { IResearchArea } from "../models";
+
 export interface CreateUserReqBody {
     email: string;
     number: string;
@@ -7,6 +9,8 @@ export interface CreateUserReqBody {
     password: string;
     position?: string;
     is_active: boolean;
+    avatar?: string;
+    research_area: IResearchArea[];
 }
 
 export interface FindUserReqBody {

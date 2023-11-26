@@ -17,10 +17,23 @@ export interface IUser {
     number: string;
     fullname: string;
     email: string;
-    position: string;
     phone: string;
+    position: string;
+    is_active: boolean; 
+    avatar?: string;
+    research_area?: IResearchArea[];
+    cccd?: string,
+    class?: string,
+    school?: string,
+    gen?: string,
+    degree?: string,
     updated_time: Date;
     created_time: Date;
-    is_active: boolean;
+    created_by: string;
     activities: IUserActivity[];
+}
+
+export interface IResearchArea {
+    name: string;
+    experience: string;
 }

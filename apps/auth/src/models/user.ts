@@ -32,12 +32,54 @@ const userSchema = new mongoose.Schema(
             required: false,
             default: true,
         },
+        avatar: {
+            type: String,
+            required: false,
+        },
+        cccd: {
+            type: String,
+            required: false,
+        },
+        class: {
+            type: String,
+            required: false,
+        },
+        school: {
+            type: String,
+            required: false,
+        },
+        gen: {
+            type: String,
+            required: false,
+        },
+        degree: {
+            type: String,
+            required: false,
+        },
+        research_area: {
+            type: {
+                name: {
+                    type: String,
+                    required: true,
+                },
+                experience: {
+                    type: String,
+                    required: true,
+                },
+            },
+            required: false,
+            _id: false,
+        },
         updated_time: {
             type: Date,
             required: false,
         },
         created_time: {
             type: Date,
+            required: true,
+        },
+        created_by: {
+            type: String,
             required: true,
         },
         activities: {

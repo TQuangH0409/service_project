@@ -5,8 +5,6 @@ import {
     findUser,
     getUserByEmail,
     updateUser,
-    getTotalUserHaveRole,
-    __getUserById,
 } from "../../controllers";
 import { findUserByIdsValidator, findUserValidator } from "../../validator";
 import {
@@ -53,31 +51,10 @@ router.get(
 );
 
 router.get(
-    "/total-user-have-role",
-    async (req: Request, _: Response, next: NextFunction) => {
-        const role = req.query.role as string;
-        const tenant = req.query.tenant as string;
-        const result = await getTotalUserHaveRole({
-            role,
-        });
-        next(result);
-    }
-);
-
-router.get(
     "/:userId",
     async (req: Request, _: Response, next: NextFunction) => {
         const { userId } = req.params;
         const result = await _getUserById(userId);
-        next(result);
-    }
-);
-
-router.get(
-    "/:userId/without-department",
-    async (req: Request, _: Response, next: NextFunction) => {
-        const { userId } = req.params;
-        const result = await __getUserById(userId);
         next(result);
     }
 );
