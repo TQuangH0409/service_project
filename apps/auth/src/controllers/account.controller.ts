@@ -7,6 +7,7 @@ import bcrypt from "bcrypt";
 import { redis } from "../database";
 import { IAccount } from "../interfaces/models";
 import { User } from "../models";
+var crypto = require("crypto")
 
 export async function createAccount(
     accounts: {
@@ -85,12 +86,12 @@ export async function updateAccountActivation(params: {
             location: "body",
             param: "ids",
             value: params.ids,
-            message: "some account ids do not exist",
+            message: "some id-account do not exist",
         });
         throw new HttpError(err);
     }
 }
-
+//help me to fix code
 export async function getIdByEmail(email: string): Promise<Result> {
     const getId = await User.findOne({ email: email });
     if (!getId) {
@@ -107,7 +108,7 @@ export async function getIdByEmail(email: string): Promise<Result> {
     }
     return success.ok({ id: getId.id });
 }
-
+// delete all these comment 
 export async function getRoleById(id: string): Promise<ResultSuccess> {
     const getId = await Account.findOne({ id: id });
     if (!getId) {
