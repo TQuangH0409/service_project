@@ -171,6 +171,7 @@ export async function findResearchArea(params: {
     size: number;
     page: number;
 }): Promise<ResultSuccess> {
+    console.log(params);
     let filter: FilterQuery<IResearchArea> = {};
     let sort: undefined | Record<string, 1 | -1> = undefined;
     const facetData =

@@ -3,7 +3,12 @@ import express, { NextFunction, Request, Response } from "express";
 import { getLinkValidator } from "../../validator";
 import multer from "multer";
 import { HttpError, HttpStatus, ResultError } from "app";
-import { getPublicURL, uploadFile } from "../../controllers/file.controller";
+import {
+    getFileByIdInDB,
+    getInfoFile,
+    getPublicURL,
+    uploadFile,
+} from "../../controllers/file.controller";
 export const router = express.Router();
 
 router.post(
@@ -44,3 +49,22 @@ router.get(
         next(result);
     }
 );
+
+router.get(
+    "/info/:fileId",
+    async (req: Request, _: Response, next: NextFunction) => {
+        const file = req.params.fileId as string;
+        const result = await getInfoFile({ file });
+        next(result);
+    }
+);
+
+router.get(
+    "/in-DB/:fileId",
+    async (req: Request, _: Response, next: NextFunction) => {
+        const id = req.params.fileId as string;
+        const result = await getFileByIdInDB({ id });
+        next(result);
+    }
+);
+

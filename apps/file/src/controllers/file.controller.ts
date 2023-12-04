@@ -1,4 +1,11 @@
-import { error, HttpError, HttpStatus, Result, success } from "app";
+import {
+    error,
+    HttpError,
+    HttpStatus,
+    Result,
+    ResultSuccess,
+    success,
+} from "app";
 import File from "../models/file";
 import * as crypto from "crypto";
 import { google } from "googleapis";
@@ -148,4 +155,35 @@ export async function getPublicURL(fileId: string): Promise<Result> {
         fields: "webViewLink, webContentLink",
     });
     return success.ok(result.data);
+}
+
+export async function getInfoFile(params: {
+    file: string;
+}): Promise<ResultSuccess> {
+    const response = await drive.files.get({ fileId: params.file });
+    return success.ok(response.data);
+}
+
+export async function getFileByIdInDB(params: { id: string }) {
+    const check = await File.findOne({ objectId: params.id }, { _id: 0 });
+
+    if (!check) {
+        throw new HttpError({
+            status: HttpStatus.BAD_REQUEST,
+            code: "INVALID_DATA",
+            description: {
+                en: "This FILE was not exits",
+                vi: "File không tồn tại",
+            },
+            errors: [
+                {
+                    param: "id",
+                    location: "param",
+                    value: params.id,
+                },
+            ],
+        });
+    }
+
+    return success.ok(check);
 }

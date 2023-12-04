@@ -57,16 +57,18 @@ const userSchema = new mongoose.Schema(
             required: false,
         },
         research_area: {
-            type: {
-                name: {
-                    type: String,
-                    required: true,
+            type: [
+                {
+                    name: {
+                        type: String,
+                        required: true,
+                    },
+                    experience: {
+                        type: String,
+                        required: true,
+                    },
                 },
-                experience: {
-                    type: String,
-                    required: true,
-                },
-            },
+            ],
             required: false,
             _id: false,
         },

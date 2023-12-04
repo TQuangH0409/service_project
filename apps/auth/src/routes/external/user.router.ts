@@ -88,7 +88,6 @@ router.post(
 //     }
 // );
 
-
 router.get(
     "/:userId",
     verifyRole("*"),
@@ -106,7 +105,7 @@ router.get(
 
 router.put(
     "/:userId",
-    verifyRole("SA","T","S"),
+    verifyRole("SA", "T", "S"),
     async (req: Request, _: Response, next: NextFunction) => {
         const body: UpdateUserReqBody = req.body;
         const payload = req.payload as Payload;

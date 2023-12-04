@@ -3,9 +3,12 @@ import { verifyRole } from "../../middlewares";
 import {
     createdResearchArea,
     deleteResearchArea,
+    findResearchArea,
     getResearchAreaById,
     updateResearchArea,
 } from "../../controllers/research_area.controller";
+import { findReaserchAreaValidator } from "../../validator/reaserch_area.validator";
+import { FindReqQuery } from "../../interfaces/request/reaserch_area.query";
 
 export const router = express.Router();
 
@@ -41,6 +44,17 @@ router.delete(
         const id = req.params.id as string;
         const userId = req.payload?.id as string;
         const result = await deleteResearchArea({ id, userId });
+        next(result);
+    }
+);
+
+router.get(
+    "/",
+    verifyRole("SA"),
+    findReaserchAreaValidator(),
+    async (req: Request, _: Response, next: NextFunction) => {
+        const query = req.query as unknown as FindReqQuery;
+        const result = await findResearchArea({ ...query });
         next(result);
     }
 );
