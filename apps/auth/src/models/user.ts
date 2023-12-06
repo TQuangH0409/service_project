@@ -63,8 +63,12 @@ const userSchema = new mongoose.Schema(
                         type: String,
                         required: true,
                     },
-                    experience: {
+                    number: {
                         type: String,
+                        required: true,
+                    },
+                    experience: {
+                        type: Number,
                         required: true,
                     },
                 },

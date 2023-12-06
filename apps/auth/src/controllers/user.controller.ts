@@ -497,3 +497,22 @@ export async function getTemplateUrl(): Promise<Result> {
         return error.notFound({ message: "template object is not configured" });
     }
 }
+
+export async function getAllUserByPosition(params: {
+    position: string;
+}): Promise<ResultSuccess> {
+    const users = await User.find(
+        { is_active: true, position: params.position },
+        {
+            _id: 0,
+            id: 1,
+            number: 1,
+            fullname: 1,
+            email: 1,
+            position: 1,
+            research_area: 1,
+        }
+    ).lean();
+
+    return success.ok(users);
+}

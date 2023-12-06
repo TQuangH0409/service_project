@@ -12,7 +12,7 @@ export interface IProject {
         mark_mid?: string;
         mark_final?: string;
     };
-    research_area?: IResearchArea[];
+    research_area: IResearchArea[];
     desciption?: {
         content: string;
         attach: string;
@@ -47,5 +47,5 @@ export interface IReport {
 
 export interface IResearchArea {
     name: string;
-    experience: string;
+    number: string;
 }

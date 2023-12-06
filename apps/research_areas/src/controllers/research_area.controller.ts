@@ -224,3 +224,17 @@ export async function findResearchArea(params: {
 
     return success.ok(result);
 }
+
+export async function getAllResearchAreas(): Promise<ResultSuccess> {
+    const projects = await ResearchArea.find(
+        { is_active: true },
+        {
+            _id: 0,
+            name: 1,
+            number: 1,
+            id: 1,
+        }
+    ).lean();
+
+    return success.ok(projects);
+}

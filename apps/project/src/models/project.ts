@@ -161,13 +161,13 @@ const projectSchema = new mongoose.Schema(
                         type: String,
                         required: true,
                     },
-                    experience: {
+                    number: {
                         type: String,
                         required: true,
                     },
                 },
             ],
-            required: false,
+            required: true,
             _id: false,
         },
         created_by: {

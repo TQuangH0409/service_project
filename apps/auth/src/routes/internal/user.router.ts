@@ -5,6 +5,7 @@ import {
     findUser,
     getUserByEmail,
     updateUser,
+    getAllUserByPosition,
 } from "../../controllers";
 import { findUserByIdsValidator, findUserValidator } from "../../validator";
 import {
@@ -16,7 +17,6 @@ import {
 
 export const router: Router = Router();
 
-
 router.get(
     "/",
     findUserValidator(),
@@ -25,6 +25,18 @@ router.get(
         const result = await findUser({
             ...query,
             userRoles: [],
+        });
+        next(result);
+    }
+);
+
+router.get(
+    "/position/:position",
+    findUserValidator(),
+    async (req: Request, _: Response, next: NextFunction) => {
+        const position = req.params.position as string;
+        const result = await getAllUserByPosition({
+            position,
         });
         next(result);
     }
@@ -43,8 +55,7 @@ router.post(
 router.get(
     "/get-by-email",
     async (req: Request, _: Response, next: NextFunction) => {
-        const { email } =
-            req.query as unknown as FindUserByEmailReqQuery;
+        const { email } = req.query as unknown as FindUserByEmailReqQuery;
         const result = await getUserByEmail({ email });
         next(result);
     }

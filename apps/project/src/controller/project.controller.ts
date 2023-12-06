@@ -432,3 +432,49 @@ export async function getProjectReviewByTeacher(params: {
 
     return success.ok(result);
 }
+
+export async function checkProjectExits(params: {
+    id: string;
+}): Promise<ResultSuccess> {
+    const check = await Project.findOne(
+        { id: params.id, is_active: true },
+        { _id: 0 }
+    );
+
+    if (!check) {
+        throw new HttpError({
+            status: HttpStatus.BAD_REQUEST,
+            code: "INVALID_DATA",
+            description: {
+                en: "This project was not exits",
+                vi: "Đồ án không tồn tại",
+            },
+            errors: [
+                {
+                    param: "id",
+                    location: "param",
+                    value: params.id,
+                },
+            ],
+        });
+    }
+
+    return success.ok(check);
+}
+
+export async function getAllProjects(): Promise<ResultSuccess> {
+    const projects = await Project.find(
+        { is_active: true },
+        {
+            _id: 0,
+            id: 1,
+            name: 1,
+            student_id: 1,
+            teacher_instruct_id: 1,
+            teacher_review_id: 1,
+            research_area: 1
+        }
+    ).lean();
+
+    return success.ok(projects);
+}

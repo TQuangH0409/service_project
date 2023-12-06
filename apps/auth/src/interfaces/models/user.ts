@@ -19,14 +19,14 @@ export interface IUser {
     email: string;
     phone: string;
     position: string;
-    is_active: boolean; 
+    is_active: boolean;
     avatar?: string;
     research_area?: IResearchArea[];
-    cccd?: string,
-    class?: string,
-    school?: string,
-    gen?: string,
-    degree?: string,
+    cccd?: string;
+    class?: string;
+    school?: string;
+    gen?: string;
+    degree?: string;
     updated_time: Date;
     created_time: Date;
     created_by: string;
@@ -35,5 +35,6 @@ export interface IUser {
 
 export interface IResearchArea {
     name: string;
-    experience: string;
+    number: string;
+    experience: number;
 }
