@@ -159,7 +159,7 @@ export async function handleReview(params: {
         return createRow(temp, size);
     }
 
-    projects.forEach((p: IProject, idx) => {
+    projects.body.forEach((p: IProject, idx) => {
         const temp = assignTheProjectToTheTeacher(
             idx,
             p.teacher_instruct_id,
@@ -170,7 +170,7 @@ export async function handleReview(params: {
     });
 
     const sum: number[] = [];
-    teachers.forEach((p, idx) => {
+    teachers.body.forEach((p, idx) => {
         const a = sumColumn(idx, array);
         sum.push(a);
     });

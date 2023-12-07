@@ -34,7 +34,6 @@ export interface IUser {
 }
 
 export interface IResearchArea {
-    name: string;
     number: string;
     experience: number;
 }

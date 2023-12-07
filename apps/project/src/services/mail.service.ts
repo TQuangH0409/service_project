@@ -27,15 +27,18 @@ export async function sendMailResetPassword(
     }
 }
 
-export async function sendMailGoogleForgotPassword(params: {
-    password: string;
-    username: string;
-    email: string;
+export async function sendMailGoogleNewProject(params: {
+    teacher: string;
+    student: string;
+    project: string;
+    fileUrl?: string;
+    fileName?: string;
+    fileType?: string;
 }): Promise<ResultSuccess> {
     const url = `${configs.services.mail.getUrl()}`;
     const err = error.service(url);
     try {
-        const result = await axios.post(`${url}/forgot-password`, params);
+        const result = await axios.post(`${url}/new-project`, params);
 
         if (result.status !== HttpStatus.OK) {
             throw new HttpError(err);

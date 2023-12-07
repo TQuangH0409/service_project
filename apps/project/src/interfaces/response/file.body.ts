@@ -12,3 +12,8 @@ export interface FileDBResBody {
     uploaded_by: string;
     created_time: Date;
 }
+
+export interface FileUrlResBody {
+    webContentLink: string;
+    webViewLink: string;
+}

@@ -20,7 +20,6 @@ export async function checkProjectExits(params: {
 }
 
 export async function getAllProjects(): Promise<{
-    forEach(arg0: (p: any, idx: any) => void): unknown;
     body?: IProject[];
     status?: number;
 }> {

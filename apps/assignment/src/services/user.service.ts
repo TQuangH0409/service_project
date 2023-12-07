@@ -22,8 +22,6 @@ export async function checkUserExits(params: {
 export async function getAllUserByPosition(params: {
     position: string;
 }): Promise<{
-    length(idx: any, teacher_email: any, arg2: any, length: any): unknown;
-    forEach(arg0: (p: any, idx: any) => void): unknown;
     body?: IUser[];
     status?: number;
 }> {

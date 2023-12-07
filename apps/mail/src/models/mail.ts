@@ -37,22 +37,6 @@ const templateEmail = new mongoose.Schema(
             type: String,
             require: false,
         },
-        params_content: [
-            {
-                type: String,
-                require: true,
-            },
-        ],
-        params_subject: [
-            {
-                type: String,
-                require: true,
-            },
-        ],
-        description: {
-            type: String,
-            require: false,
-        },
     },
     {
         versionKey: false,

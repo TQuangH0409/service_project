@@ -1,7 +1,7 @@
 import { HttpError, HttpStatus, ResultSuccess, error, success } from "app";
 import Project from "../models/project";
 import { checkUserExits } from "../services/user.service";
-import { IProject, IReport, IResearchArea } from "../interfaces/models/project";
+import { IProject, IReport } from "../interfaces/models/project";
 import { v1 } from "uuid";
 import { FilterQuery, PipelineStage } from "mongoose";
 import {
@@ -9,7 +9,12 @@ import {
     parseQuery,
     parseSort,
 } from "../../../../packages/mquery/build";
-import { getInfoFileGoogleApi, getInfoFileInDB } from "../services";
+import {
+    getInfoFileGoogleApi,
+    getInfoFileInDB,
+    getPublicURL,
+    sendMailGoogleNewProject,
+} from "../services";
 
 export async function createdProject(params: {
     name: string;
@@ -18,7 +23,7 @@ export async function createdProject(params: {
         content?: string;
         attach?: string;
     };
-    research_area: IResearchArea[];
+    research_area: String[];
     userId: string;
 }): Promise<ResultSuccess> {
     const isUserExits = await Promise.all([
@@ -26,7 +31,7 @@ export async function createdProject(params: {
         checkUserExits({ userId: params.userId }),
     ]);
 
-    if (!isUserExits[0]) {
+    if (isUserExits[0] && isUserExits[0].status) {
         throw new HttpError({
             status: HttpStatus.BAD_REQUEST,
             code: "INVALID_DATA",
@@ -44,7 +49,7 @@ export async function createdProject(params: {
         });
     }
 
-    if (!isUserExits[1]) {
+    if (isUserExits[1] && isUserExits[1].status ) {
         throw new HttpError({
             status: HttpStatus.BAD_REQUEST,
             code: "INVALID_DATA",
@@ -95,15 +100,36 @@ export async function createdProject(params: {
         student_id: params.student_id,
         teacher_instruct_id: params.userId,
         discription: {
-            content: params.discription?.attach,
-            attach: params.discription?.content,
+            content: params.discription?.content,
+            attach: params.discription?.attach,
         },
         research_area: params.research_area,
         created_time: new Date(),
         created_by: params.userId,
     });
 
+    let file;
+    let url;
+
+    if (params.discription && params.discription?.attach) {
+        file = await getInfoFileInDB(params.discription.attach);
+        url = await getPublicURL(params.discription.attach);
+    }
+
     await project.save();
+    console.log(
+        "🚀 ~ file: project.controller.ts:35 ~ isUserExits[0]:",
+        isUserExits[1]
+    );
+
+    await sendMailGoogleNewProject({
+        teacher: isUserExits[1].body!.fullname,
+        student: isUserExits[0].body!.fullname,
+        project: params.name,
+        fileName: file?.body?.name,
+        fileType: file?.body?.type,
+        fileUrl: url?.body?.webContentLink,
+    });
 
     return success.ok(project);
 }
@@ -115,7 +141,7 @@ export async function updateProject(params: {
         content?: string;
         attach?: string;
     };
-    research_area: IResearchArea[];
+    research_area: String[];
     report?: string[];
     source_code?: string;
     rate?: {
@@ -472,7 +498,7 @@ export async function getAllProjects(): Promise<ResultSuccess> {
             student_id: 1,
             teacher_instruct_id: 1,
             teacher_review_id: 1,
-            research_area: 1
+            research_area: 1,
         }
     ).lean();
 

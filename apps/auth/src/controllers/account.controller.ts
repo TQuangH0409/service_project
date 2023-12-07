@@ -25,6 +25,7 @@ export async function createAccount(
     const uniqueAccounts: typeModel[] = [];
     const sr = Number(configs.saltRounds);
     for (let i = 0; i < accounts.length; i++) {
+        console.log("🚀 ~ file: account.controller.ts:28 ~  i:",  i)
         const element = accounts[i];
         let hashedPassword = undefined;
         if (element.password) {

@@ -59,10 +59,6 @@ const userSchema = new mongoose.Schema(
         research_area: {
             type: [
                 {
-                    name: {
-                        type: String,
-                        required: true,
-                    },
                     number: {
                         type: String,
                         required: true,

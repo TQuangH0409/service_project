@@ -1,17 +1,20 @@
 import {
     SendMailBody,
     SendMailResetPassReqBody,
-} from "./../interfaces/request/mail.body";
+} from "../../interfaces/request/mail.body";
 
 import { NextFunction, Request, Response, Router } from "express";
 import {
-    sendMailGoogle, sendMailGoogleForgotPassword,
+    sendMailGoogle,
+    sendMailGoogleForgotPassword,
+    sendMailGoogleNewAccount,
+    sendMailGoogleNewProject,
     // getParamsByCode,
     // sendMailBasic,
     // sendMailOutlook,
     // sendMailResetPassword,
-} from "../controllers";
-import { sendMailResetPasswordValidator } from "../validator";
+} from "../../controllers";
+import { sendMailResetPasswordValidator } from "../../validator";
 
 export const router: Router = Router();
 
@@ -35,3 +38,19 @@ router.post(
         next(result);
     }
 );
+
+router.post(
+    "/new-account",
+    sendMailResetPasswordValidator(),
+    async (req: Request, _: Response, next: NextFunction) => {
+        const body = req.body as SendMailResetPassReqBody;
+        const result = await sendMailGoogleNewAccount(body);
+        next(result);
+    }
+);
+
+router.post("/new-project", async (req: Request, _: Response, next: NextFunction) => {
+    const body = req.body;
+    const result = await sendMailGoogleNewProject(body);
+    next(result);
+});

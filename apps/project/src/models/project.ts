@@ -155,20 +155,8 @@ const projectSchema = new mongoose.Schema(
             _id: false,
         },
         research_area: {
-            type: [
-                {
-                    name: {
-                        type: String,
-                        required: true,
-                    },
-                    number: {
-                        type: String,
-                        required: true,
-                    },
-                },
-            ],
+            type: [{ type: String, required: true }],
             required: true,
-            _id: false,
         },
         created_by: {
             type: String,

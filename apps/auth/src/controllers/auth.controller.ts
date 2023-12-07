@@ -45,6 +45,8 @@ export async function login(params: {
                 { _id: 0, activities: 0 }
             ).lean(),
         ]);
+        console.log("🚀 ~ file: auth.controller.ts:48 ~ account:", account)
+        
         if (account && account.password) {
             if (account.failed_login === numberOfTried - 1) {
                 account.last_locked = new Date();
@@ -86,7 +88,8 @@ export async function login(params: {
                     return accountRolesEmpty();
                 }
                 const { id, roles, email } = account;
-
+                console.log("🚀 ~ file: auth.controller.ts:89 ~ id, roles, email:", id, roles, email)
+                
                 const accessToken = genAccessToken({
                     id,
                     roles,

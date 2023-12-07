@@ -5,6 +5,9 @@ import nodemailer, { Transporter } from "nodemailer";
 import { configs } from "../configs";
 import { google } from "googleapis";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
+import axios from "axios";
+import mime from "mime-types";
+import { Transform } from "stream";
 
 async function transport(): Promise<
     nodemailer.Transporter<SMTPTransport.SentMessageInfo>
@@ -18,7 +21,6 @@ async function transport(): Promise<
     oAuth2Client.setCredentials({ refresh_token: configs.mail.refresh_token });
 
     const accessToken = await oAuth2Client.getAccessToken();
-
     const transport = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 465,
@@ -70,4 +72,92 @@ export async function sendMailGoogleForgotPassword(params: {
     `,
     });
     return success.ok({ message: "successful" });
+}
+
+export async function sendMailGoogleNewAccount(params: {
+    password: string;
+    username: string;
+    email: string;
+}): Promise<ResultSuccess> {
+    let info = await (
+        await transport()
+    ).sendMail({
+        from: "Hệ thống trường ĐHBK Hà Nội",
+        to: params.email,
+        subject: "Tài khoản truy cập hệ thống được cấp",
+        html: `
+    <h1>Hello ${params.username}!</h1>
+    <p>Tên đăng nhập của bạn là ${params.email}</p>
+    <p>Mật khẩu của bạn là ${params.password}</p>
+    `,
+    });
+    return success.ok({ message: "successful" });
+}
+
+export async function sendMailGoogleNewProject(params: {
+    teacher: string;
+    student: {
+        fullname: string;
+        email: string;
+    };
+    project: string;
+    fileUrl?: string;
+    fileName?: string;
+    fileType?: string;
+}): Promise<ResultSuccess> {
+    // Đường dẫn URL đến file cần tải
+
+    let attachments;
+
+    if (params.fileName && params.fileType && params.fileUrl) {
+        const content = createAttachmentStream(params.fileUrl);
+        attachments = [
+            {
+                filename: `${params.fileName}.${mime.extension(
+                    params.fileType
+                )}`,
+
+                content: content,
+                contentType: params.fileType,
+            },
+        ];
+    } else {
+        attachments = undefined;
+    }
+
+    let info = (await transport()).sendMail({
+        from: "[Hệ thống trường ĐHBK Hà Nội]<trongquangvu80@gmail.com>",
+        to: `${params.student.email}`,
+        subject: "Đồ án tốt nghiệp",
+        html: `
+    <h1>Hello ${params.student.fullname}!</h1>
+    <p>Giáo viên hướng dẫn ${params.teacher} đã gán cho bạn một ĐATN</p>
+    <p>Tên đề tài: ${params.project}</p>
+    <p>Vui lòng đăng nhập hệ thống để kiểm tra</p>
+    <p>File mô tả yêu cầu đính kèm</p>
+    `,
+        attachments: attachments,
+    });
+    return success.ok({ message: "successful" });
+}
+
+// Hàm tạo stream từ URL và MIME type
+function createAttachmentStream(url: string): Transform {
+    const transformStream = new Transform({
+        transform(chunk, encoding, callback) {
+            this.push(chunk, encoding);
+            callback();
+        },
+    });
+
+    axios
+        .get(url, { responseType: "stream" })
+        .then((response) => {
+            response.data.pipe(transformStream);
+        })
+        .catch((error) => {
+            console.error("Error fetching attachment:", error);
+        });
+
+    return transformStream;
 }

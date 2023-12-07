@@ -1,5 +1,5 @@
 import { v1 } from "uuid";
-import { getDownloadLinks } from "../services";
+import { getDownloadLinks, sendMailGoogleNewAccount } from "../services";
 import {
     error,
     HttpError,
@@ -92,6 +92,11 @@ export async function createUser(params: {
             },
         ]),
         user.save(),
+        sendMailGoogleNewAccount({
+            username: params.fullname,
+            password: params.password,
+            email: params.email,
+        }),
     ]);
     const data = {
         ...user.toJSON(),

@@ -7,7 +7,4 @@ export interface ITEmail {
     created_by: string;
     updated_time: Date;
     updated_by: string;
-    params_content: object[];
-    params_subject: object[];
-    description: string;
 }
