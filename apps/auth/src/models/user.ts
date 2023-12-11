@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IUser } from "../interfaces/models";
+import { EPOSITION, IUser } from "../interfaces/models";
 
 const userSchema = new mongoose.Schema(
     {
@@ -25,12 +25,54 @@ const userSchema = new mongoose.Schema(
         },
         position: {
             type: String,
-            required: false,
+            enum: EPOSITION,
+            required: true,
+            default: EPOSITION.ADMIN,
         },
         is_active: {
             type: Boolean,
             required: false,
             default: true,
+        },
+        avatar: {
+            type: String,
+            required: false,
+        },
+        cccd: {
+            type: String,
+            required: false,
+        },
+        class: {
+            type: String,
+            required: false,
+        },
+        school: {
+            type: String,
+            required: false,
+        },
+        gen: {
+            type: String,
+            required: false,
+        },
+        degree: {
+            type: String,
+            required: false,
+        },
+        research_area: {
+            type: [
+                {
+                    number: {
+                        type: String,
+                        required: true,
+                    },
+                    experience: {
+                        type: Number,
+                        required: false,
+                    },
+                },
+            ],
+            required: false,
+            _id: false,
         },
         updated_time: {
             type: Date,
@@ -38,6 +80,10 @@ const userSchema = new mongoose.Schema(
         },
         created_time: {
             type: Date,
+            required: true,
+        },
+        created_by: {
+            type: String,
             required: true,
         },
         activities: {

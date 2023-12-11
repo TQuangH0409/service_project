@@ -5,8 +5,7 @@ import {
     findUser,
     getUserByEmail,
     updateUser,
-    getTotalUserHaveRole,
-    __getUserById,
+    getAllUserByPosition,
 } from "../../controllers";
 import { findUserByIdsValidator, findUserValidator } from "../../validator";
 import {
@@ -18,7 +17,6 @@ import {
 
 export const router: Router = Router();
 
-
 router.get(
     "/",
     findUserValidator(),
@@ -27,6 +25,19 @@ router.get(
         const result = await findUser({
             ...query,
             userRoles: [],
+        });
+        next(result);
+    }
+);
+
+router.get(
+    "/position/:position",
+    findUserValidator(),
+    async (req: Request, _: Response, next: NextFunction) => {
+        const position = req.params.position as string;
+        const result = await getAllUserByPosition({
+            position,
+            type: true,
         });
         next(result);
     }
@@ -45,21 +56,8 @@ router.post(
 router.get(
     "/get-by-email",
     async (req: Request, _: Response, next: NextFunction) => {
-        const { email } =
-            req.query as unknown as FindUserByEmailReqQuery;
+        const { email } = req.query as unknown as FindUserByEmailReqQuery;
         const result = await getUserByEmail({ email });
-        next(result);
-    }
-);
-
-router.get(
-    "/total-user-have-role",
-    async (req: Request, _: Response, next: NextFunction) => {
-        const role = req.query.role as string;
-        const tenant = req.query.tenant as string;
-        const result = await getTotalUserHaveRole({
-            role,
-        });
         next(result);
     }
 );
@@ -67,17 +65,8 @@ router.get(
 router.get(
     "/:userId",
     async (req: Request, _: Response, next: NextFunction) => {
-        const { userId } = req.params;
+        const userId = req.params.userId as string;
         const result = await _getUserById(userId);
-        next(result);
-    }
-);
-
-router.get(
-    "/:userId/without-department",
-    async (req: Request, _: Response, next: NextFunction) => {
-        const { userId } = req.params;
-        const result = await __getUserById(userId);
         next(result);
     }
 );

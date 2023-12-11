@@ -1,15 +1,34 @@
 import { v1 } from "uuid";
-import { getDownloadLinks } from "../services";
-import { error, HttpError, HttpStatus, Result, success } from "app";
-import { IUser, UserAction } from "../interfaces/models";
+import {
+    getDownloadLinks,
+    sendMailGoogleNewAccount,
+    sendMailGoogleUpdateAccount,
+} from "../services";
+import {
+    error,
+    HttpError,
+    HttpStatus,
+    Result,
+    ResultSuccess,
+    success,
+} from "app";
+import {
+    EPOSITION,
+    IResearchArea,
+    IUser,
+    UserAction,
+} from "../interfaces/models";
 import mongoose, { FilterQuery, PipelineStage } from "mongoose";
-import { createAccount, updateAccountActivation } from "./account.controller";
+import { createAccount } from "./account.controller";
 import { parseQuery, parseSort, ParseSyntaxError } from "mquery";
 import { Account, User } from "../models";
+import { ImportUserReqBody } from "../interfaces/request";
 import {
-    FindTotalUserReqQuery,
-    ImportUserReqBody,
-} from "../interfaces/request";
+    checkResearchAreasExits,
+    getResearchAreaByNumber,
+} from "../services/research_area.service";
+import { check } from "express-validator";
+import { getProjectsByStudent } from "../services/project.service";
 
 export async function createUser(params: {
     email: string;
@@ -17,8 +36,15 @@ export async function createUser(params: {
     number: string;
     fullname: string;
     phone?: string;
-    position?: string;
+    position: EPOSITION;
     roles: string[];
+    avatar?: string;
+    research_area: IResearchArea[];
+    cccd?: string;
+    class?: string;
+    school?: string;
+    gen?: string;
+    degree?: string;
     is_active: boolean;
     userRoles: string[];
     userId: string;
@@ -30,6 +56,32 @@ export async function createUser(params: {
     }
     await checkEmailExists(params.email);
 
+    if (params.roles.includes("T") && params.research_area.length === 0) {
+        throw new HttpError(
+            error.invalidData({
+                location: "Body",
+                param: "research_area",
+                message:
+                    "User validation failed: research_area: Path `research_area` is required.",
+            })
+        );
+    }
+
+    const checkRA = await checkResearchAreasExits({
+        numbers: params.research_area.map((r) => r.number),
+    });
+
+    if (checkRA.status !== HttpStatus.NO_CONTENT) {
+        throw new HttpError(
+            error.invalidData({
+                location: "body",
+                param: "research area",
+                value: params.research_area,
+                message: "the research_area does not exist",
+            })
+        );
+    }
+
     const user = new User({
         id: v1(),
         fullname: params.fullname,
@@ -38,6 +90,14 @@ export async function createUser(params: {
         phone: params.phone,
         position: params.position,
         created_time: new Date(),
+        created_by: params.userId,
+        cccd: params.cccd,
+        class: params.class,
+        school: params.school,
+        gen: params.gen,
+        degree: params.degree,
+        avatar: params.avatar,
+        research_area: params.research_area,
         is_active: params.is_active,
         activities: [
             {
@@ -59,6 +119,11 @@ export async function createUser(params: {
             },
         ]),
         user.save(),
+        sendMailGoogleNewAccount({
+            username: params.fullname,
+            password: params.password,
+            email: params.email,
+        }),
     ]);
     const data = {
         ...user.toJSON(),
@@ -75,6 +140,13 @@ export async function updateUser(params: {
     roles?: string[];
     position?: string;
     is_active?: boolean;
+    avatar?: string;
+    research_area?: IResearchArea[];
+    cccd?: string;
+    class?: string;
+    school?: string;
+    gen?: string;
+    degree?: string;
     userId: string;
     userRoles: string[];
 }): Promise<Result> {
@@ -93,6 +165,25 @@ export async function updateUser(params: {
     }
     const session = await mongoose.startSession();
     session.startTransaction();
+
+    if (params.research_area) {
+        const checkRA = await checkResearchAreasExits({
+            numbers: params.research_area.map((r) => r.number),
+        });
+        console.log("🚀 ~ file: user.controller.ts:169 ~ checkRA:", checkRA);
+
+        if (checkRA.status !== HttpStatus.NO_CONTENT) {
+            throw new HttpError(
+                error.invalidData({
+                    location: "body",
+                    param: "research area",
+                    value: params.research_area,
+                    message: "the research_area does not exist",
+                })
+            );
+        }
+    }
+
     const user = await User.findOneAndUpdate(
         { id: params.id },
         {
@@ -101,6 +192,13 @@ export async function updateUser(params: {
                 phone: params.phone,
                 position: params.position,
                 is_active: params.is_active,
+                avatar: params.avatar,
+                research_area: params.research_area,
+                cccd: params.cccd,
+                class: params.class,
+                school: params.school,
+                gen: params.gen,
+                degree: params.degree,
                 updated_time: new Date(),
             },
             $push: {
@@ -124,6 +222,26 @@ export async function updateUser(params: {
         { session }
     );
     if (user != null && account != null) {
+        const change = {
+            fullname: params.fullname,
+            phone: params.phone,
+            roles: params.roles,
+            position: params.position,
+            is_active: params.is_active,
+            avatar: params.avatar,
+            research_area: params.research_area,
+            cccd: params.cccd,
+            class: params.class,
+            school: params.school,
+            gen: params.gen,
+            degree: params.degree,
+            username: user.fullname,
+            email: user.email,
+        };
+        if (params.userRoles.includes("SA")) {
+            sendMailGoogleUpdateAccount(change);
+        }
+
         await session.commitTransaction();
         session.endSession();
         const data = {
@@ -203,107 +321,89 @@ export async function findUser(params: {
     return success.ok(result);
 }
 
-export async function getUserByRole(params: {
-    query?: string;
-    sort?: string;
-    roles: string[];
-    userRoles: string[];
-}): Promise<Result> {
-    let filter: FilterQuery<IUser> = {};
-    let sort: undefined | Record<string, 1 | -1> = undefined;
-    try {
-        const userFilter = params.query && parseQuery(params.query);
-        userFilter && (filter = { $and: [filter, userFilter] });
-        params.sort && (sort = parseSort(params.sort));
-    } catch (e) {
-        const err = e as unknown as ParseSyntaxError;
-        const errorValue =
-            err.message === params.sort ? params.sort : params.query;
-        throw new HttpError(
-            error.invalidData({
-                location: "query",
-                param: err.type,
-                message: err.message,
-                value: errorValue,
-            })
-        );
-    }
-    const lookup = (
-        field: string,
-        as?: string
-    ): PipelineStage.Lookup["$lookup"] => {
-        const newField = as ? as : field;
-        return {
-            from: "accounts",
-            let: { email: `$${field}` },
-            as: newField,
-            pipeline: [
-                {
-                    $match: {
-                        $and: [
-                            { $expr: { $eq: ["$$email", "$email"] } },
-                            { roles: { $in: params.roles } },
-                        ],
-                    },
-                },
-                { $project: { roles: 1, _id: 0 } },
-            ],
-        };
-    };
-    const pipeline: PipelineStage[] = [{ $match: filter }];
-    sort && pipeline.push({ $sort: sort });
-    pipeline.push(
-        { $lookup: lookup("email", "role") },
-        {
-            $replaceRoot: {
-                newRoot: {
-                    $mergeObjects: [{ $arrayElemAt: ["$role", 0] }, "$$ROOT"],
-                },
-            },
-        },
-        {
-            $match: {
-                roles: { $exists: true },
-            },
-        },
-        { $project: { _id: 0, activities: 0, role: 0 } }
-    );
-    const result = await User.aggregate(pipeline)
-        .collation({ locale: "vi" })
-        .then((res) => {
-            const data = res.filter((e: IUser & { roles: string[] }) => {
-                return e.roles.length > 0;
-            });
-            return {
-                data: data,
-            };
-        });
-
-    return success.ok(result);
-}
 export async function getUserById(params: {
     id: string;
     userId: string;
     userRoles: string[];
 }): Promise<Result> {
     const filter: FilterQuery<IUser> = { id: params.id };
-    if (!params.userRoles.includes("SA")) {
-        if (!params.userRoles.includes("TA") && params.id !== params.userId) {
-            return error.actionNotAllowed();
-        }
-    }
     const [user, account] = await Promise.all([
-        User.findOne(filter, { _id: 0, password: 0 }),
-        Account.findOne(
-            { id: params.id },
-            { id: 1, email: 1, roles: 1, created_time: 1, updated_time: 1 }
-        ),
+        User.findOne(filter, {
+            _id: 0,
+            created_by: 0,
+            created_time: 0,
+            updated_time: 0,
+            is_active: 0,
+        }),
+        Account.findOne({ id: params.id }, { _id: 0 }),
     ]);
 
+    let research_area: { [key: string]: string | number | undefined }[] = [];
+
     if (user && account) {
+        if (user.research_area) {
+            const ra = user.research_area.map((r) =>
+                getResearchAreaByNumber(r.number)
+            );
+
+            const r = await Promise.all(ra);
+            r.forEach((e, idx) =>
+                research_area.push({
+                    name: e.body!.name,
+                    number: e.body!.number,
+                    experience: user.research_area![idx].experience,
+                })
+            );
+        }
+
+        let teacher_instruct = undefined;
+        let teacher_review = undefined;
+        let projectId = undefined;
+
+        if (user.position === EPOSITION.STUDENT) {
+            const project = await getProjectsByStudent(user.id);
+            if (project && project.body) {
+                projectId = project.body?.id;
+                [teacher_instruct, teacher_review] = await Promise.all([
+                    User.findOne(
+                        { id: project.body.teacher_instruct_id },
+                        {
+                            _id: 0,
+                            id: 1,
+                            fullname: 1,
+                            number: 1,
+                            email: 1,
+                            phone: 1,
+                            degree: 1,
+                            school: 1,
+                            research_area: 1,
+                        }
+                    ),
+                    User.findOne(
+                        { id: project.body.teacher_review_id },
+                        {
+                            _id: 0,
+                            id: 1,
+                            fullname: 1,
+                            number: 1,
+                            email: 1,
+                            phone: 1,
+                            degree: 1,
+                            school: 1,
+                            research_area: 1,
+                        }
+                    ),
+                ]);
+            }
+        }
+
         const data = {
             ...user.toObject(),
             roles: account?.roles,
+            teacher_instruct: teacher_instruct,
+            teacher_review: teacher_review ? teacher_review : undefined,
+            research_area: research_area,
+            project: projectId,
         };
         return success.ok(data);
     }
@@ -317,19 +417,19 @@ export async function getUserById(params: {
 
 export async function getUserByEmail(params: {
     email: string;
-}): Promise<Result> {
+}): Promise<ResultSuccess> {
     let filter: FilterQuery<IUser>;
 
     filter = { email: params.email };
 
-    const user = await User.findOne(filter, { _id: 0, password: 0 });
+    const user = await User.findOne(filter, { _id: 0 });
     if (user) {
         const data = {
             ...user.toJSON(),
         };
         return success.ok(data);
     } else {
-        return error.notFound({
+        throw error.notFound({
             location: "body",
             param: "email",
             value: params.email,
@@ -338,33 +438,30 @@ export async function getUserByEmail(params: {
     }
 }
 
-export async function _getUserById(userId: string): Promise<Result> {
+export async function _getUserById(userId: string): Promise<ResultSuccess> {
     const user = await User.findOne(
         { id: userId },
-        { _id: 0, password: 0 }
-    ).lean();
+        {
+            _id: 0,
+            password: 0,
+            created_by: 0,
+            created_time: 0,
+            updated_time: 0,
+            is_active: 0,
+            activities: 0,
+        }
+    );
     if (!user) {
-        return error.notFound({
+        throw error.notFound({
             param: "userId",
             value: userId,
             message: `the user does not exist`,
         });
     }
-    return success.ok(user);
-}
-
-export async function __getUserById(userId: string): Promise<Result> {
-    const user = await User.findOne(
-        { id: userId },
-        { _id: 0, password: 0 }
-    ).lean();
-    if (!user) {
-        return error.notFound({
-            param: "userId",
-            value: userId,
-            message: `the user does not exist`,
-        });
-    }
+    console.log(
+        "🚀 ~ file: user.controller.ts:463 ~ _getUserById ~ user:",
+        user
+    );
     return success.ok(user);
 }
 
@@ -405,55 +502,6 @@ export async function getUserByIds(ids: string[]): Promise<Result> {
     return success.ok(users);
 }
 
-export async function updateUserActivation(params: {
-    ids: string[];
-    status: boolean;
-    userRoles: string[];
-}): Promise<Result | Error> {
-    const uniqueIds: string[] = [...new Set(params.ids)];
-    const filter: FilterQuery<IUser> = {
-        id: { $in: uniqueIds },
-    };
-
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    const updateResult = await User.updateMany(
-        filter,
-        { $set: { is_active: params.status } },
-        { new: true, session }
-    );
-
-    const abortTransaction = async (): Promise<void> => {
-        await session.abortTransaction();
-        await session.endSession();
-    };
-
-    const matched = updateResult.matchedCount;
-    if (matched === uniqueIds.length) {
-        try {
-            await updateAccountActivation({
-                ids: [...uniqueIds],
-                status: params.status,
-            });
-        } catch (err) {
-            await abortTransaction();
-            throw err;
-        }
-
-        await session.commitTransaction();
-        await session.endSession();
-        return success.ok({ updated: matched });
-    } else {
-        await abortTransaction();
-        return error.invalidData({
-            location: "body",
-            param: "ids",
-            value: params.ids,
-            message: "some user ids do not exist",
-        });
-    }
-}
-
 export async function importUser(params: {
     data: ImportUserReqBody;
     userRoles: string[];
@@ -465,9 +513,19 @@ export async function importUser(params: {
             id: v1(),
             fullname: u.fullname,
             email: u.email,
+            number: u.number,
             phone: u.phone,
             position: u.position,
             created_time: new Date(),
+            created_by: params.userId,
+            cccd: u.cccd,
+            class: u.class,
+            school: u.school,
+            gen: u.gen,
+            degree: u.degree,
+            avatar: u.avatar,
+            research_area: u.research_area,
+            is_active: u.is_active,
             activities: [
                 {
                     action: UserAction.CREATE,
@@ -486,14 +544,10 @@ export async function importUser(params: {
             email: u.email,
             password: u.password,
             is_active: true,
-            roles: ["EU"],
+            roles: u.roles,
         };
     });
-    await Promise.all([
-        createAccount(accounts),
-        // increaseUser(numberUserIncrease),
-        User.insertMany(users),
-    ]);
+    await Promise.all([createAccount(accounts), User.insertMany(users)]);
     return success.created({ inserted: params.data.length });
 }
 
@@ -605,14 +659,60 @@ export async function getTemplateUrl(): Promise<Result> {
     }
 }
 
-export async function getTotalUserHaveRole(params: {
-    role: string;
-}): Promise<Result> {
-    const { role } = params;
-    const query: FindTotalUserReqQuery = {
-        roles: role,
-        is_active: true,
-    };
-    const total_user = await Account.countDocuments(query);
-    return success.ok({ total_user });
+export async function getAllUserByPosition(params: {
+    position: string;
+    type?: boolean;
+}): Promise<ResultSuccess> {
+    const users = await User.find(
+        { is_active: true, position: params.position },
+        {
+            _id: 0,
+            id: 1,
+            number: 1,
+            fullname: 1,
+            email: 1,
+            position: 1,
+            research_area: 1,
+        }
+    )
+        .then((res) => {
+            const result = res.map(async (u) => {
+                let research_area: {
+                    [key: string]: string | number | undefined;
+                }[] = [];
+
+                if (u.research_area) {
+                    if (!params.type) {
+                        const ra = u.research_area.map((r) =>
+                            getResearchAreaByNumber(r.number)
+                        );
+
+                        const r = await Promise.all(ra);
+                        r.forEach((e, idx) =>
+                            research_area.push({
+                                name: e.body!.name,
+                                number: e.body!.number,
+                                experience: u.research_area![idx].experience,
+                            })
+                        );
+                    } else {
+                        const ra = u.research_area.map((r, idx) =>
+                            research_area.push({
+                                number: r.number,
+                                experience: r.experience,
+                            })
+                        );
+                    }
+                }
+
+                const data = {
+                    ...u.toObject(),
+                    research_area: research_area,
+                };
+                return data;
+            });
+            return Promise.all(result);
+        });
+
+    return success.ok(users);
 }

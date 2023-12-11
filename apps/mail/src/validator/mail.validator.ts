@@ -7,7 +7,6 @@ export const sendMailResetPasswordValidator = (): (
     | RequestHandler
 )[] => [
     body("email", "email must not be empty").exists().bail().notEmpty(),
-    body("link", "link must not be empty").exists().bail().notEmpty(),
     handleValidation,
 ];
 

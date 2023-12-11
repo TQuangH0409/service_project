@@ -15,10 +15,10 @@ export const configs = {
         password: process.env.CA_MAIL_REDIS_PASSWORD || "",
     },
     mail: {
-        user: process.env.CA_USER_MAIL_SERVER || "",
-        pass: process.env.CA_PASS_MAIL_SERVER || "",
-        host: process.env.CA_HOST_MAIL_SERVER || "",
-        port: process.env.CA_PORT_MAIL_SERVER || "",
+        client_id: process.env.CA_GOOGLE_SERVER_CLIENT_ID || "",
+        client_secret: process.env.CA_GOOGLE_SERVER_CLIENT_SECRET || "",
+        redirect_uri: process.env.CA_GOOGLE_SERVER_REDIRECT_URI || "",
+        refresh_token: process.env.CA_GOOGLE_SERVER_REFRESH_TOKEN || "",
     },
     mongo: {
         addresses: process.env.CA_MAIL_MONGO_ADDRESSES || "127.0.0.1:27001",

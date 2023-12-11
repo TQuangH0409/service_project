@@ -3,26 +3,21 @@ import { NextFunction, Request, Response, Router } from "express";
 import {
     createUser,
     findUser,
+    getAllUserByPosition,
     getUserById,
     importUser,
-    updateUserActivation,
     updateUser,
-    getTemplateUrl,
-    getUserByRole,
 } from "../../controllers";
 import {
     CreateUserReqBody,
     ImportUserReqBody,
-    UpdateUserActivationReqBody,
     UpdateUserReqBody,
 } from "../../interfaces/request";
 import { FindReqQuery } from "../../interfaces/request";
 import { verifyRole } from "../../middlewares";
 import {
-    createUserValidator,
     findUserValidator,
     importUserValidator,
-    updateActivationValidator,
     updateUserValidator,
 } from "../../validator";
 
@@ -43,29 +38,9 @@ router.get(
     }
 );
 
-router.get(
-    "/user-role",
-    verifyRole("SA"),
-    // findUserValidator(),
-    async (req: Request, _: Response, next: NextFunction) => {
-        const query = req.query as unknown as FindReqQuery & {
-            roles: string;
-        };
-        const roles: string[] = query.roles.split(",");
-        const payload = req.payload as Payload;
-        const result = await getUserByRole({
-            ...query,
-            roles: roles,
-            userRoles: payload.roles,
-        });
-        next(result);
-    }
-);
-
 router.post(
     "/",
     verifyRole("SA"),
-    // createUserValidator(),
     async (req: Request, _: Response, next: NextFunction) => {
         const body: CreateUserReqBody = req.body;
         const payload = req.payload as Payload;
@@ -81,7 +56,7 @@ router.post(
 router.post(
     "/import",
     verifyRole("SA"),
-    importUserValidator(),
+    // importUserValidator(),
     async (req: Request, _: Response, next: NextFunction) => {
         if (!Array.isArray(req.body)) {
             throw new HttpError(
@@ -105,25 +80,21 @@ router.post(
     }
 );
 
+// router.get(
+//     "/import-template",
+//     verifyRole("SA"),
+//     async (_: Request, __: Response, next: NextFunction) => {
+//         const result = await getTemplateUrl();
+//         next(result);
+//     }
+// );
 router.get(
-    "/import-template",
-    verifyRole("SA"),
-    async (_: Request, __: Response, next: NextFunction) => {
-        const result = await getTemplateUrl();
-        next(result);
-    }
-);
-
-router.post(
-    "/update-activation",
-    verifyRole("SA"),
-    updateActivationValidator(),
+    "/position/",
+    findUserValidator(),
     async (req: Request, _: Response, next: NextFunction) => {
-        const body = req.body as UpdateUserActivationReqBody;
-        const payload = req.payload as Payload;
-        const result = await updateUserActivation({
-            ...body,
-            userRoles: payload.roles,
+        const position = req.query.position as string;
+        const result = await getAllUserByPosition({
+            position,
         });
         next(result);
     }
@@ -146,8 +117,7 @@ router.get(
 
 router.put(
     "/:userId",
-    verifyRole("SA"),
-    updateUserValidator(),
+    verifyRole("SA", "T", "S"),
     async (req: Request, _: Response, next: NextFunction) => {
         const body: UpdateUserReqBody = req.body;
         const payload = req.payload as Payload;
@@ -161,3 +131,5 @@ router.put(
         next(result);
     }
 );
+
+

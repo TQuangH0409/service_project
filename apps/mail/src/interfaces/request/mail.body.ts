@@ -16,6 +16,7 @@ export interface SendMailBody {
 }
 
 export interface SendMailResetPassReqBody {
+    password: string;
+    username: string;
     email: string;
-    link: string;
 }

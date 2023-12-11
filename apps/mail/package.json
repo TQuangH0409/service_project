@@ -26,13 +26,16 @@
         "logger": "workspace:*",
         "mongoose": "^7.0.1",
         "nodemailer": "^6.9.1",
-        "uuid": "^9.0.0"
+        "googleapis": "^128.0.0",
+        "uuid": "^9.0.0",
+        "mime-types": "^2.1.35"
     },
     "devDependencies": {
         "@types/express": "^4.17.17",
         "@types/node": "^18.15.0",
         "@types/nodemailer": "^6.4.7",
         "@types/uuid": "^9.0.1",
+        "@types/mime-types": "^2.1.4",
         "eslint-config-custom": "workspace:*",
         "prettier-config-custom": "workspace:*",
         "nodemon": "^2.0.21",

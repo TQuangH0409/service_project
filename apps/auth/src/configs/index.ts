@@ -64,7 +64,7 @@ export const configs = {
         ad: {
             prefix: process.env.CA_AUTH_AD_SERVICE_PREFIX || "/",
             host: process.env.CA_AUTH_AD_SERVICE_HOST || "http://127.0.0.1",
-            port: process.env.CA_AUTH_AD_SERVICE_PORT || "6809",
+            port: process.env.CA_AUTH_AD_SERVICE_PORT || "6801",
             getUrl: function (): string {
                 return `${this.host}:${this.port}${this.prefix}`;
             },
@@ -82,7 +82,25 @@ export const configs = {
             prefix:
                 process.env.CA_AUTH_FILE_SERVICE_PREFIX || "/api/v1/in/files",
             host: process.env.CA_AUTH_FILE_SERVICE_HOST || "http://127.0.0.1",
-            port: process.env.CA_AUTH_FILE_SERVICE_PORT || "6807",
+            port: process.env.CA_AUTH_FILE_SERVICE_PORT || "6802",
+            getUrl: function (): string {
+                return `${this.host}:${this.port}${this.prefix}`;
+            },
+        },
+        reseach_area: {
+            prefix:
+                process.env.CA_ASSIGNMENT_FILE_SERVICE_PREFIX || "/api/v1/in/research-areas",
+            host: process.env.CA_ASSIGNMENT_FILE_SERVICE_HOST || "http://127.0.0.1",
+            port: process.env.CA_ASSIGNMENT_FILE_SERVICE_PORT || "6804",
+            getUrl: function (): string {
+                return `${this.host}:${this.port}${this.prefix}`;
+            },
+        },
+        project: {
+            prefix:
+                process.env.CA_ASSIGNMENT_FILE_SERVICE_PREFIX || "/api/v1/in/projects",
+            host: process.env.CA_ASSIGNMENT_FILE_SERVICE_HOST || "http://127.0.0.1",
+            port: process.env.CA_ASSIGNMENT_FILE_SERVICE_PORT || "6805",
             getUrl: function (): string {
                 return `${this.host}:${this.port}${this.prefix}`;
             },
