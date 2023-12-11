@@ -1,8 +1,8 @@
 import { error } from "app";
 import { configs } from "./../configs/index";
 import axios from "axios";
-import { VerifyCodeResBody } from "../interfaces/response";
 import { HttpError } from "app";
+import { VerifyCodeResBody } from "../interface/response";
 
 export async function verifyAccessCode(params: {
     accessCode: string;

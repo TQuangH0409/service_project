@@ -1,7 +1,7 @@
 import { error, HttpError, HttpStatus } from "app";
 import axios from "axios";
 import { configs } from "../configs";
-import { FileResBody } from "../interfaces/response";
+import { FileResBody } from "../interface/response";
 
 export async function getDownloadLinks(objects: string[]): Promise<{
     body?: FileResBody[];
