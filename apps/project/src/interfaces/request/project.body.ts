@@ -1,4 +1,4 @@
-import { IReport, IResearchArea } from "../models/project";
+import { IReport,  } from "../models/project";
 
 export interface IProjectReqBody {
     name: string;
@@ -7,7 +7,7 @@ export interface IProjectReqBody {
         content?: string;
         attach?: string;
     };
-    research_area: IResearchArea[];
+    research_area: string[];
 }
 
 export interface IProjectUpdateReqBody {
@@ -16,7 +16,7 @@ export interface IProjectUpdateReqBody {
         content?: string;
         attach?: string;
     };
-    research_area: IResearchArea[];
+    research_area: string[];
     report?: string[];
     source_code?: string;
     rate?: {

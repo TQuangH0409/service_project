@@ -1,4 +1,4 @@
-import { IResearchArea } from "../models";
+import { EPOSITION, IResearchArea } from "../models";
 
 export interface CreateUserReqBody {
     email: string;
@@ -7,7 +7,7 @@ export interface CreateUserReqBody {
     roles: string[];
     phone?: string;
     password: string;
-    position?: string;
+    position: EPOSITION;
     is_active: boolean;
     avatar?: string;
     research_area: IResearchArea[];
@@ -37,13 +37,21 @@ export interface UpdateUserReqBody {
 
 export interface UserImport {
     index: number;
-    number: string;
     email: string;
-    fullname?: string;
+    password: string;
+    number: string;
+    fullname: string;
     phone?: string;
-    password?: string;
-    position?: string;
+    position: EPOSITION;
     roles: string[];
+    avatar?: string;
+    research_area: IResearchArea[];
+    cccd?: string;
+    class?: string;
+    school?: string;
+    gen?: string;
+    degree?: string;
+    is_active: boolean;
 }
 
 export interface UpdateUserActivationReqBody {

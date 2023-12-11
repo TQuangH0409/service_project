@@ -32,6 +32,10 @@ oauth2Client.setCredentials({
     refresh_token: configs.googleapis.client_refresh_token,
 });
 
+
+
+// const accessToken = await oAuth2Client.getAccessToken();
+
 const drive = google.drive({
     version: "v3",
     auth: oauth2Client,

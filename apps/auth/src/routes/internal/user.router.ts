@@ -37,6 +37,7 @@ router.get(
         const position = req.params.position as string;
         const result = await getAllUserByPosition({
             position,
+            type: true,
         });
         next(result);
     }
@@ -64,7 +65,7 @@ router.get(
 router.get(
     "/:userId",
     async (req: Request, _: Response, next: NextFunction) => {
-        const { userId } = req.params;
+        const userId = req.params.userId as string;
         const result = await _getUserById(userId);
         next(result);
     }

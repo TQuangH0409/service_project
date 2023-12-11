@@ -3,6 +3,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import {
     createUser,
     findUser,
+    getAllUserByPosition,
     getUserById,
     importUser,
     updateUser,
@@ -55,7 +56,7 @@ router.post(
 router.post(
     "/import",
     verifyRole("SA"),
-    importUserValidator(),
+    // importUserValidator(),
     async (req: Request, _: Response, next: NextFunction) => {
         if (!Array.isArray(req.body)) {
             throw new HttpError(
@@ -87,6 +88,17 @@ router.post(
 //         next(result);
 //     }
 // );
+router.get(
+    "/position/",
+    findUserValidator(),
+    async (req: Request, _: Response, next: NextFunction) => {
+        const position = req.query.position as string;
+        const result = await getAllUserByPosition({
+            position,
+        });
+        next(result);
+    }
+);
 
 router.get(
     "/:userId",
@@ -119,3 +131,5 @@ router.put(
         next(result);
     }
 );
+
+

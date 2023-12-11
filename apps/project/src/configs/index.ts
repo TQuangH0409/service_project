@@ -43,7 +43,8 @@ export const configs = {
     log: {
         logFileEnabled: process.env.CA_PROJECT_LOG_FILE_ENABLED || "false",
         folderLogsPath:
-            process.env.CA_PROJECT_FOLDER_LOGS_PATH || `${__dirname}/../../logs`,
+            process.env.CA_PROJECT_FOLDER_LOGS_PATH ||
+            `${__dirname}/../../logs`,
 
         logstashEnabled: process.env.CA_PROJECT_LOG_LOGSTASH_ENABLED || "false",
         logstashHost: process.env.CA_PROJECT_LOG_LOGSTASH_HOST || "127.0.0.1",
@@ -63,7 +64,8 @@ export const configs = {
         mail: {
             prefix:
                 process.env.CA_PROJECT_MAIL_SERVICE_PREFIX || "/api/v1/in/mail",
-            host: process.env.CA_PROJECT_MAIL_SERVICE_HOST || "http://127.0.0.1",
+            host:
+                process.env.CA_PROJECT_MAIL_SERVICE_HOST || "http://127.0.0.1",
             port: process.env.CA_PROJECT_MAIL_SERVICE_PORT || "6803",
             getUrl: function (): string {
                 return `${this.host}:${this.port}${this.prefix}`;
@@ -71,9 +73,23 @@ export const configs = {
         },
         file: {
             prefix:
-                process.env.CA_PROJECT_FILE_SERVICE_PREFIX || "/api/v1/in/files",
-            host: process.env.CA_PROJECT_FILE_SERVICE_HOST || "http://127.0.0.1",
+                process.env.CA_PROJECT_FILE_SERVICE_PREFIX ||
+                "/api/v1/in/files",
+            host:
+                process.env.CA_PROJECT_FILE_SERVICE_HOST || "http://127.0.0.1",
             port: process.env.CA_PROJECT_FILE_SERVICE_PORT || "6802",
+            getUrl: function (): string {
+                return `${this.host}:${this.port}${this.prefix}`;
+            },
+        },
+        reseach_area: {
+            prefix:
+                process.env.CA_ASSIGNMENT_FILE_SERVICE_PREFIX ||
+                "/api/v1/in/research-areas",
+            host:
+                process.env.CA_ASSIGNMENT_FILE_SERVICE_HOST ||
+                "http://127.0.0.1",
+            port: process.env.CA_ASSIGNMENT_FILE_SERVICE_PORT || "6804",
             getUrl: function (): string {
                 return `${this.host}:${this.port}${this.prefix}`;
             },

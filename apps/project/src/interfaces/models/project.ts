@@ -12,7 +12,7 @@ export interface IProject {
         mark_mid?: string;
         mark_final?: string;
     };
-    research_area: String[];
+    research_area: string[];
     desciption?: {
         content: string;
         attach: string;

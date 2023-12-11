@@ -18,7 +18,7 @@ export interface IUser {
     fullname: string;
     email: string;
     phone: string;
-    position: string;
+    position: EPOSITION;
     is_active: boolean;
     avatar?: string;
     research_area?: IResearchArea[];
@@ -35,5 +35,11 @@ export interface IUser {
 
 export interface IResearchArea {
     number: string;
-    experience: number;
+    experience?: number;
+}
+
+export enum EPOSITION {
+    TEACHER = "TEACHER",
+    STUDENT = "STUDENT",
+    ADMIN = "ADMIN",
 }

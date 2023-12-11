@@ -238,3 +238,77 @@ export async function getAllResearchAreas(): Promise<ResultSuccess> {
 
     return success.ok(projects);
 }
+
+export async function getResearchAreaByNumber(params: {
+    number: string;
+}): Promise<ResultSuccess> {
+    const check = await ResearchArea.findOne(
+        {
+            number: params.number,
+            is_active: true,
+        },
+        {
+            _id: 0,
+            name: 1,
+            number: 1,
+        }
+    );
+
+    if (!check) {
+        throw new HttpError({
+            status: HttpStatus.BAD_REQUEST,
+            code: "INVALID_DATA",
+            description: {
+                en: "Research area not already exists",
+                vi: "Lĩnh vực nghiên cứu này không tồn tại",
+            },
+            errors: [
+                {
+                    param: "number",
+                    location: "param",
+                    value: params.number,
+                },
+            ],
+        });
+    }
+
+    return success.ok(check);
+}
+
+export async function checkResearchAreasExits(params: {
+    numbers: string[];
+}): Promise<ResultSuccess> {
+    const check = await ResearchArea.find(
+        {
+            number: {
+                $in: params.numbers,
+            },
+            is_active: true,
+        },
+        {
+            _id: 0,
+            name: 1,
+            number: 1,
+        }
+    );
+
+    if (check.length < params.numbers.length) {
+        throw new HttpError({
+            status: HttpStatus.BAD_REQUEST,
+            code: "INVALID_DATA",
+            description: {
+                en: "Research area not already exists",
+                vi: "Lĩnh vực nghiên cứu này không tồn tại",
+            },
+            errors: [
+                {
+                    param: "number",
+                    location: "param",
+                    value: params.numbers,
+                },
+            ],
+        });
+    }
+
+    return success.noContent();
+}

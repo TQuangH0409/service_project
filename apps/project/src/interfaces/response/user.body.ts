@@ -10,5 +10,5 @@ export interface IUser {
 export interface IResearchAreaT {
     name: string;
     number: string;
-    experience: number;
+    experience?: number;
 }

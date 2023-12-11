@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IUser } from "../interfaces/models";
+import { EPOSITION, IUser } from "../interfaces/models";
 
 const userSchema = new mongoose.Schema(
     {
@@ -25,7 +25,9 @@ const userSchema = new mongoose.Schema(
         },
         position: {
             type: String,
-            required: false,
+            enum: EPOSITION,
+            required: true,
+            default: EPOSITION.ADMIN,
         },
         is_active: {
             type: Boolean,
@@ -65,7 +67,7 @@ const userSchema = new mongoose.Schema(
                     },
                     experience: {
                         type: Number,
-                        required: true,
+                        required: false,
                     },
                 },
             ],

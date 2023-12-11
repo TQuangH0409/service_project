@@ -1,5 +1,9 @@
 import { v1 } from "uuid";
-import { getDownloadLinks, sendMailGoogleNewAccount } from "../services";
+import {
+    getDownloadLinks,
+    sendMailGoogleNewAccount,
+    sendMailGoogleUpdateAccount,
+} from "../services";
 import {
     error,
     HttpError,
@@ -8,15 +12,23 @@ import {
     ResultSuccess,
     success,
 } from "app";
-import { IResearchArea, IUser, UserAction } from "../interfaces/models";
+import {
+    EPOSITION,
+    IResearchArea,
+    IUser,
+    UserAction,
+} from "../interfaces/models";
 import mongoose, { FilterQuery, PipelineStage } from "mongoose";
-import { createAccount, updateAccountActivation } from "./account.controller";
+import { createAccount } from "./account.controller";
 import { parseQuery, parseSort, ParseSyntaxError } from "mquery";
 import { Account, User } from "../models";
+import { ImportUserReqBody } from "../interfaces/request";
 import {
-    FindTotalUserReqQuery,
-    ImportUserReqBody,
-} from "../interfaces/request";
+    checkResearchAreasExits,
+    getResearchAreaByNumber,
+} from "../services/research_area.service";
+import { check } from "express-validator";
+import { getProjectsByStudent } from "../services/project.service";
 
 export async function createUser(params: {
     email: string;
@@ -24,7 +36,7 @@ export async function createUser(params: {
     number: string;
     fullname: string;
     phone?: string;
-    position?: string;
+    position: EPOSITION;
     roles: string[];
     avatar?: string;
     research_area: IResearchArea[];
@@ -51,6 +63,21 @@ export async function createUser(params: {
                 param: "research_area",
                 message:
                     "User validation failed: research_area: Path `research_area` is required.",
+            })
+        );
+    }
+
+    const checkRA = await checkResearchAreasExits({
+        numbers: params.research_area.map((r) => r.number),
+    });
+
+    if (checkRA.status !== HttpStatus.NO_CONTENT) {
+        throw new HttpError(
+            error.invalidData({
+                location: "body",
+                param: "research area",
+                value: params.research_area,
+                message: "the research_area does not exist",
             })
         );
     }
@@ -138,6 +165,25 @@ export async function updateUser(params: {
     }
     const session = await mongoose.startSession();
     session.startTransaction();
+
+    if (params.research_area) {
+        const checkRA = await checkResearchAreasExits({
+            numbers: params.research_area.map((r) => r.number),
+        });
+        console.log("🚀 ~ file: user.controller.ts:169 ~ checkRA:", checkRA);
+
+        if (checkRA.status !== HttpStatus.NO_CONTENT) {
+            throw new HttpError(
+                error.invalidData({
+                    location: "body",
+                    param: "research area",
+                    value: params.research_area,
+                    message: "the research_area does not exist",
+                })
+            );
+        }
+    }
+
     const user = await User.findOneAndUpdate(
         { id: params.id },
         {
@@ -176,6 +222,26 @@ export async function updateUser(params: {
         { session }
     );
     if (user != null && account != null) {
+        const change = {
+            fullname: params.fullname,
+            phone: params.phone,
+            roles: params.roles,
+            position: params.position,
+            is_active: params.is_active,
+            avatar: params.avatar,
+            research_area: params.research_area,
+            cccd: params.cccd,
+            class: params.class,
+            school: params.school,
+            gen: params.gen,
+            degree: params.degree,
+            username: user.fullname,
+            email: user.email,
+        };
+        if (params.userRoles.includes("SA")) {
+            sendMailGoogleUpdateAccount(change);
+        }
+
         await session.commitTransaction();
         session.endSession();
         const data = {
@@ -262,14 +328,82 @@ export async function getUserById(params: {
 }): Promise<Result> {
     const filter: FilterQuery<IUser> = { id: params.id };
     const [user, account] = await Promise.all([
-        User.findOne(filter, { _id: 0 }),
+        User.findOne(filter, {
+            _id: 0,
+            created_by: 0,
+            created_time: 0,
+            updated_time: 0,
+            is_active: 0,
+        }),
         Account.findOne({ id: params.id }, { _id: 0 }),
     ]);
 
+    let research_area: { [key: string]: string | number | undefined }[] = [];
+
     if (user && account) {
+        if (user.research_area) {
+            const ra = user.research_area.map((r) =>
+                getResearchAreaByNumber(r.number)
+            );
+
+            const r = await Promise.all(ra);
+            r.forEach((e, idx) =>
+                research_area.push({
+                    name: e.body!.name,
+                    number: e.body!.number,
+                    experience: user.research_area![idx].experience,
+                })
+            );
+        }
+
+        let teacher_instruct = undefined;
+        let teacher_review = undefined;
+        let projectId = undefined;
+
+        if (user.position === EPOSITION.STUDENT) {
+            const project = await getProjectsByStudent(user.id);
+            if (project && project.body) {
+                projectId = project.body?.id;
+                [teacher_instruct, teacher_review] = await Promise.all([
+                    User.findOne(
+                        { id: project.body.teacher_instruct_id },
+                        {
+                            _id: 0,
+                            id: 1,
+                            fullname: 1,
+                            number: 1,
+                            email: 1,
+                            phone: 1,
+                            degree: 1,
+                            school: 1,
+                            research_area: 1,
+                        }
+                    ),
+                    User.findOne(
+                        { id: project.body.teacher_review_id },
+                        {
+                            _id: 0,
+                            id: 1,
+                            fullname: 1,
+                            number: 1,
+                            email: 1,
+                            phone: 1,
+                            degree: 1,
+                            school: 1,
+                            research_area: 1,
+                        }
+                    ),
+                ]);
+            }
+        }
+
         const data = {
             ...user.toObject(),
             roles: account?.roles,
+            teacher_instruct: teacher_instruct,
+            teacher_review: teacher_review ? teacher_review : undefined,
+            research_area: research_area,
+            project: projectId,
         };
         return success.ok(data);
     }
@@ -304,18 +438,30 @@ export async function getUserByEmail(params: {
     }
 }
 
-export async function _getUserById(userId: string): Promise<Result> {
+export async function _getUserById(userId: string): Promise<ResultSuccess> {
     const user = await User.findOne(
         { id: userId },
-        { _id: 0, password: 0 }
-    ).lean();
+        {
+            _id: 0,
+            password: 0,
+            created_by: 0,
+            created_time: 0,
+            updated_time: 0,
+            is_active: 0,
+            activities: 0,
+        }
+    );
     if (!user) {
-        return error.notFound({
+        throw error.notFound({
             param: "userId",
             value: userId,
             message: `the user does not exist`,
         });
     }
+    console.log(
+        "🚀 ~ file: user.controller.ts:463 ~ _getUserById ~ user:",
+        user
+    );
     return success.ok(user);
 }
 
@@ -367,9 +513,19 @@ export async function importUser(params: {
             id: v1(),
             fullname: u.fullname,
             email: u.email,
+            number: u.number,
             phone: u.phone,
             position: u.position,
             created_time: new Date(),
+            created_by: params.userId,
+            cccd: u.cccd,
+            class: u.class,
+            school: u.school,
+            gen: u.gen,
+            degree: u.degree,
+            avatar: u.avatar,
+            research_area: u.research_area,
+            is_active: u.is_active,
             activities: [
                 {
                     action: UserAction.CREATE,
@@ -505,6 +661,7 @@ export async function getTemplateUrl(): Promise<Result> {
 
 export async function getAllUserByPosition(params: {
     position: string;
+    type?: boolean;
 }): Promise<ResultSuccess> {
     const users = await User.find(
         { is_active: true, position: params.position },
@@ -517,7 +674,45 @@ export async function getAllUserByPosition(params: {
             position: 1,
             research_area: 1,
         }
-    ).lean();
+    )
+        .then((res) => {
+            const result = res.map(async (u) => {
+                let research_area: {
+                    [key: string]: string | number | undefined;
+                }[] = [];
+
+                if (u.research_area) {
+                    if (!params.type) {
+                        const ra = u.research_area.map((r) =>
+                            getResearchAreaByNumber(r.number)
+                        );
+
+                        const r = await Promise.all(ra);
+                        r.forEach((e, idx) =>
+                            research_area.push({
+                                name: e.body!.name,
+                                number: e.body!.number,
+                                experience: u.research_area![idx].experience,
+                            })
+                        );
+                    } else {
+                        const ra = u.research_area.map((r, idx) =>
+                            research_area.push({
+                                number: r.number,
+                                experience: r.experience,
+                            })
+                        );
+                    }
+                }
+
+                const data = {
+                    ...u.toObject(),
+                    research_area: research_area,
+                };
+                return data;
+            });
+            return Promise.all(result);
+        });
 
     return success.ok(users);
 }

@@ -8,6 +8,8 @@ import SMTPTransport from "nodemailer/lib/smtp-transport";
 import axios from "axios";
 import mime from "mime-types";
 import { Transform } from "stream";
+import { IResearchArea } from "../interfaces/request/research_area.body";
+import { KEY } from "../interfaces/models";
 
 async function transport(): Promise<
     nodemailer.Transporter<SMTPTransport.SentMessageInfo>
@@ -160,4 +162,66 @@ function createAttachmentStream(url: string): Transform {
         });
 
     return transformStream;
+}
+
+export async function sendMailGoogleUpdateAccount(params: {
+    fullname?: string;
+    phone?: string;
+    roles?: string[];
+    position?: string;
+    is_active?: boolean;
+    avatar?: string;
+    research_area?: IResearchArea[];
+    cccd?: string;
+    class?: string;
+    school?: string;
+    gen?: string;
+    degree?: string;
+    username: string;
+    email: string;
+}): Promise<ResultSuccess> {
+    let list = objectToHtmlList(params);
+
+    let info = await (
+        await transport()
+    ).sendMail({
+        from: "[Hệ thống trường ĐHBK Hà Nội]<trongquangvu80@gmail.com>",
+        to: params.email,
+        subject: "ADMIN cập nhật thông tin cá nhân ",
+        html: `
+    <h1>Hello ${params.username}!</h1>
+    <p>ADMIN đã thực hiện cập nhập thông tin cá nhân bạn</p>
+    <p>Nội dung thay đổi</p>
+    <ul>
+       ${list}
+    </ul>
+    `,
+    });
+    return success.ok({ message: "successful" });
+}
+
+function objectToHtmlList(obj: Record<string, any>): string {
+    let list = "<ul>";
+    Object.entries(obj).forEach(([key, value]) => {
+        if (
+            value !== undefined &&
+            value !== null &&
+            KEY.hasOwnProperty(key) === true
+        ) {
+            if (Array.isArray(value)) {
+                // Nếu giá trị là một mảng, chuyển mảng thành danh sách
+                list += `<li>${KEY[key]}: <ul>${value
+                    .map((item) => `${objectToHtmlList(item)}`)
+                    .join("")}</ul></li>`;
+            } else if (typeof value === "object") {
+                // Nếu giá trị là một đối tượng, chuyển đối tượng thành danh sách con
+                list += `<li>${KEY[key]}: ${objectToHtmlList(value)}</li>`;
+            } else {
+                // Nếu giá trị không phải là mảng hoặc đối tượng, in ra giá trị
+                list += `<li>${KEY[key]}: ${value}</li>`;
+            }
+        }
+    });
+    list += "</ul>";
+    return list;
 }

@@ -1,30 +1,35 @@
 import { HttpError, HttpStatus, ResultSuccess, success } from "app";
-import { ETYPE, IAssignment } from "../interfaces/models/assignment";
+import {
+    ETYPE,
+    ETYPEARRAY,
+    IAssignment,
+    IStudentAss,
+} from "../interfaces/models/assignment";
 import { getAllProjects } from "../services/project.service";
 import { getAllResearchAreas } from "../services/research_area.service";
 import { getAllUserByPosition } from "../services/user.service";
 import { v1 } from "uuid";
 import { IProject } from "../interfaces/response/project.body";
 import { IArray_Assignment } from "../interfaces/response/assignment.body";
+import Array from "../models/array";
+import { IUser } from "../interfaces/response/user.body";
+import { isNumeric } from "utils";
 
 export async function handle(params: { limit: number; type: ETYPE }) {}
 
-export async function handleInstruct(params: {
-    limit: number;
-}): Promise<ResultSuccess> {
-    return success.ok({});
-}
-
 export async function handleReview(params: {
-    limit: number;
+    limit?: number;
     userId: string;
 }): Promise<ResultSuccess> {
-    const array: number[][] = [];
+    const array: (number | string)[][] = [];
+    const header: string[] = [];
 
-    const teachers = await getAllUserByPosition({ position: "Teacher" });
+    const teachers = await getAllUserByPosition({ position: "TEACHER" });
     const projects = await getAllProjects();
+
     const assignments: IAssignment[] = [];
-    const arrayT_P: number[][] = (await getArrayTeacherProject()).data;
+    const arrayT_P: (number | string)[][] = (await getArrayTeacherProject())
+        .data;
 
     if (!(projects && projects.body)) {
         throw new HttpError({
@@ -60,12 +65,22 @@ export async function handleReview(params: {
         });
     }
 
+    const limit = params.limit
+        ? params.limit
+        : teachers.body.length / projects.body.length;
+    header.push("STT");
+    teachers.body.forEach((t) => {
+        header.push(t.fullname);
+    });
+    array.push(header);
+
     // tính tổng cột check số lượng đồ án mà giáo viên đã đk phân công
-    function sumColumn(idx: number, a: number[][]): number {
+    function sumColumn(idx: number, a: (number | string)[][]): number {
         let sum = 0;
         a.forEach((r) => {
             if (Number.isInteger(r[idx])) {
-                sum = sum + r[idx];
+                const temp = r[idx] as number;
+                sum = sum + temp;
             }
         });
         return sum;
@@ -115,12 +130,15 @@ export async function handleReview(params: {
         arrayT_P[project].forEach((a, idx) => {
             let compatibility = 0;
             if (teacherCheckSum.includes(idx)) {
-                compatibility = a;
-                if (compatibility >= maxCompatibility) {
-                    maxCompatibility = compatibility;
-                    temp = idx;
+                if (Number.isInteger(a)) {
+                    const temp_a = a as number;
+                    compatibility = temp_a;
+                    if (compatibility >= maxCompatibility) {
+                        maxCompatibility = compatibility;
+                        temp = idx;
+                    }
+                    return success.ok(array);
                 }
-                return success.ok(array);
             }
         });
 
@@ -160,13 +178,16 @@ export async function handleReview(params: {
     }
 
     projects.body.forEach((p: IProject, idx) => {
+        const temp_e: (string | number)[] = [];
+        temp_e.push(p.name);
         const temp = assignTheProjectToTheTeacher(
             idx,
             p.teacher_instruct_id,
             teachers.body!.length,
-            params.limit
+            limit
         );
-        array.push(temp);
+        temp_e.push(...temp);
+        array.push(temp_e);
     });
 
     const sum: number[] = [];
@@ -179,7 +200,212 @@ export async function handleReview(params: {
 
     const result: IArray_Assignment = {
         array: array,
-        assignment: assignments,
+        assignment: undefined,
+    };
+    return success.ok(result);
+}
+
+export async function handleInstruct(params: {
+    limit?: number;
+    userId: string;
+}): Promise<ResultSuccess> {
+    const array: (number | string)[][] = [];
+    const header: string[] = [];
+
+    const teachers = await getAllUserByPosition({ position: "TEACHER" });
+    const students = await getAllUserByPosition({ position: "STUDENT" });
+
+    const assignments: IAssignment[] = [];
+    const arrayT_S: (number | string)[][] = (await getArrayTeacherStudent())
+        .data;
+
+    if (!(students && students.body)) {
+        throw new HttpError({
+            status: HttpStatus.BAD_REQUEST,
+            code: "INVALID_DATA",
+            description: {
+                en: "Service student has an error",
+                vi: "Service student có lỗi",
+            },
+            errors: [
+                {
+                    param: "service student",
+                    location: "internal router",
+                },
+            ],
+        });
+    }
+
+    if (!(teachers && teachers.body)) {
+        throw new HttpError({
+            status: HttpStatus.BAD_REQUEST,
+            code: "INVALID_DATA",
+            description: {
+                en: "Service teacher has an error",
+                vi: "Service teacher có lỗi",
+            },
+            errors: [
+                {
+                    param: "service teacher",
+                    location: "internal router",
+                },
+            ],
+        });
+    }
+
+    const limit = params.limit
+        ? params.limit
+        : parseFloat((students.body.length / teachers.body.length).toFixed());
+    header.push("STT");
+    console.log("🚀 ~ file: handle.controller.ts:259 ~ limit:", limit);
+    teachers.body.forEach((t) => {
+        header.push(t.fullname);
+    });
+    array.push(header);
+
+    // tính tổng cột check số lượng đồ án mà giáo viên đã đk phân công
+    function sumColumn(idx: number, a: (number | string)[][]): number {
+        let sum = 0;
+        a.forEach((r, i) => {
+            if (i > 0) {
+                if (Number.isInteger(r[idx])) {
+                    const temp = r[idx] as number;
+                    sum = sum + temp;
+                }
+            }
+        });
+        return sum;
+    }
+    // đánh đấu giáo viện đk phân công đồ án
+    function createRow(
+        fullname: string,
+        idx: number,
+        size: number,
+        is?: boolean
+    ): (number | string)[] {
+        const rowProject: (number | string)[] = [];
+        for (let i = 0; i < size; i++) {
+            i === 0 ? rowProject.push(fullname) : rowProject.push(0);
+        }
+        if (!is) {
+            rowProject[idx] = 1;
+        }
+        return rowProject;
+    }
+
+    // kiểm tra giáo viên đã đk phân công đồ án nào chưa
+    function checkAssignment(
+        ass: IAssignment[],
+        teacher: string
+    ): IAssignment | undefined {
+        let result: IAssignment | undefined = undefined;
+        ass.forEach((a) => {
+            if (a.teacher === teacher) {
+                result = a;
+            }
+        });
+        return result;
+    }
+
+    function assignTheProjectToTheTeacher(
+        project: number,
+        // teacher: string,
+        size: number,
+        limit: number,
+        fullname: string
+    ): (number | string)[] {
+        let maxCompatibility = Number.NEGATIVE_INFINITY;
+        let temp = 1;
+
+        // lay ra cac giao vien co so do an < 3
+        const teacherCheckSum: number[] = [];
+        teachers.body!.forEach((t, idx) => {
+            if (
+                sumColumn(idx + 1, array) < limit
+
+                // && t.id !== teacher
+            ) {
+                teacherCheckSum.push(idx + 1);
+            }
+        });
+        if (teacherCheckSum.length === 0) {
+            return createRow(fullname, temp, size, true);
+        }
+        // phan cong giao vien
+        arrayT_S[project].forEach((a, idx) => {
+            let compatibility = 0;
+            if (teacherCheckSum.includes(idx) && idx > 0) {
+                if (Number.isInteger(a)) {
+                    const temp_a = a as number;
+                    compatibility = temp_a;
+                    if (compatibility >= maxCompatibility) {
+                        maxCompatibility = compatibility;
+                        temp = idx;
+                    }
+                }
+            }
+        });
+
+        const decision = checkAssignment(
+            assignments,
+            teachers.body![temp - 1].email
+        );
+
+        if (decision === undefined) {
+            const assignment: IAssignment = {
+                teacher: teachers.body![temp - 1].id,
+
+                // teacher_name: teachers![temp].name,
+                // teacher_phone: teachers![temp].phone,
+                // teacher_email: teachers[temp].email,
+                student: [
+                    {
+                        id: students.body![project].id,
+                        coincidence: maxCompatibility,
+                    },
+                ],
+                id: v1(),
+                type: ETYPE.REVIEW,
+                project: [],
+                created_time: new Date(),
+                created_by: params.userId,
+            };
+            assignments.push(assignment);
+        } else {
+            decision.project.push({
+                id: students.body![project].id,
+                coincidence: maxCompatibility,
+            });
+        }
+        console.log(
+            "🚀 ~ file: handle.controller.ts:319 ~ teacherCheckSum:",
+            teacherCheckSum
+        );
+        return createRow(fullname, temp, size);
+    }
+
+    students.body.forEach((s: IUser, idx) => {
+        const temp = assignTheProjectToTheTeacher(
+            idx,
+            // p.teacher_instruct_id,
+            header.length,
+            limit,
+            s.fullname
+        );
+        array.push(temp);
+    });
+
+    const sum: (number | string)[] = [];
+    header.forEach((p, idx) => {
+        const a = sumColumn(idx, array);
+        sum.push(a);
+    });
+
+    array.push(sum);
+
+    const result: IArray_Assignment = {
+        array: array,
+        assignment: undefined,
     };
     return success.ok(result);
 }
@@ -240,10 +466,11 @@ export async function getArraySpecializeProject(): Promise<ResultSuccess> {
     return success.ok(array);
 }
 
-// thiết lập array project - specialize
+// thiết lập array teacher - specialize
 export async function getArraySpecializeTeacher(): Promise<ResultSuccess> {
     const array: number[][] = [];
-    const teachers = await getAllUserByPosition({ position: "Teacher" });
+    const array2: (number | string)[][] = [];
+    const teachers = await getAllUserByPosition({ position: "TEACHER" });
     const reseach_areas = await getAllResearchAreas();
 
     if (!(teachers && teachers.body)) {
@@ -279,22 +506,30 @@ export async function getArraySpecializeTeacher(): Promise<ResultSuccess> {
             ],
         });
     }
-
+    const header: string[] = [];
+    header.push("STT");
+    reseach_areas.body!.forEach((st) => header.push(st.number));
+    array2.push(header);
     teachers.body.map((t) => {
         const row: number[] = [];
+        const row2: (number | string)[] = [];
+        row2.push(t.fullname);
 
         reseach_areas.body!.map((s) => {
             const temp = t.research_area.find((r) => r.number === s.number);
             if (temp) {
                 row.push(temp.experience);
+                row2.push(temp.experience);
             } else {
                 row.push(0);
+                row2.push(0);
             }
         });
         array.push(row);
+        array2.push(row2);
     });
 
-    return success.ok(array);
+    return success.ok(array2);
 }
 
 // thiet lap array teacher - project
@@ -306,9 +541,14 @@ export async function getArrayTeacherProject(): Promise<ResultSuccess> {
         let total = 0;
 
         p.forEach((_p, idx) => {
-            total += _p * t[idx];
+            if (idx > 0) {
+                if (typeof _p === "number" && typeof t[idx] === "number") {
+                    const temp_t = t[idx] as number;
+                    const temp_s = _p as number;
+                    total += temp_s * temp_t;
+                }
+            }
         });
-
         return total;
     }
 
@@ -323,4 +563,127 @@ export async function getArrayTeacherProject(): Promise<ResultSuccess> {
     }
 
     return success.ok(array);
+}
+
+// thiet lap array teacher - student
+export async function getArrayTeacherStudent(): Promise<ResultSuccess> {
+    const students: (number | string)[][] = (await getArraySpecializeStudent())
+        .data;
+    const teachers: (number | string)[][] = (await getArraySpecializeTeacher())
+        .data;
+
+    function sum(s: (number | string)[], t: (number | string)[]): number {
+        let total = 0;
+
+        s.forEach((_s, idx) => {
+            if (idx > 0) {
+                if (typeof _s === "number" && typeof t[idx] === "number") {
+                    const temp_t = t[idx] as number;
+                    const temp_s = _s as number;
+                    total += temp_s * temp_t;
+                }
+            }
+        });
+
+        return total;
+    }
+
+    const array: number[][] = [];
+    const header: string[] = [];
+    const array2: (number | string)[][] = [];
+
+    for (const t of teachers) {
+        if (typeof t[0] === "string") {
+            const temp = t[0] as string;
+            header.push(temp);
+        }
+        continue;
+    }
+    array2.push(header);
+    students.forEach((s, idx) => {
+        if (idx > 0) {
+            const element: (number | string)[] = [];
+            element.push(s[0]);
+            teachers.forEach((t, i) => {
+                if (i > 0) {
+                    element.push(sum(s, t));
+                }
+            });
+            array2.push(element);
+        }
+    });
+
+    return success.ok(array2);
+}
+
+// thiết lập array student - specialize
+export async function getArraySpecializeStudent(): Promise<ResultSuccess> {
+    const array: number[][] = [];
+    const array2: (number | string)[][] = [];
+    const students = await getAllUserByPosition({ position: "STUDENT" });
+    const reseach_areas = await getAllResearchAreas();
+
+    if (!(students && students.body)) {
+        throw new HttpError({
+            status: HttpStatus.BAD_REQUEST,
+            code: "INVALID_DATA",
+            description: {
+                en: "Service student has an error",
+                vi: "Service student có lỗi",
+            },
+            errors: [
+                {
+                    param: "service student",
+                    location: "internal router",
+                },
+            ],
+        });
+    }
+
+    if (!(reseach_areas && reseach_areas.body)) {
+        throw new HttpError({
+            status: HttpStatus.BAD_REQUEST,
+            code: "INVALID_DATA",
+            description: {
+                en: "Service research-ares has an error",
+                vi: "Service research-ares có lỗi",
+            },
+            errors: [
+                {
+                    param: "service research-ares",
+                    location: "internal router",
+                },
+            ],
+        });
+    }
+    const header: string[] = [];
+    header.push("STT");
+    reseach_areas.body!.forEach((st) => header.push(st.number));
+    array2.push(header);
+    students.body!.map((st) => {
+        const row: number[] = [];
+        const row2: (number | string)[] = [];
+
+        row2.push(st.fullname);
+        reseach_areas.body!.map((s) => {
+            if (st.research_area.find((r) => r.number === s.number)) {
+                row.push(1);
+                row2.push(1);
+            } else {
+                row.push(0);
+                row2.push(0);
+            }
+        });
+        array.push(row);
+        array2.push(row2);
+    });
+
+    // await Array.create(
+    //     new Array({
+    //         id: ETYPEARRAY.S_T,
+    //         array: array2,
+    //     })
+    // );
+
+    return success.ok(array2);
 }

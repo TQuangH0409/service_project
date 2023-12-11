@@ -9,6 +9,7 @@ import {
     sendMailGoogleForgotPassword,
     sendMailGoogleNewAccount,
     sendMailGoogleNewProject,
+    sendMailGoogleUpdateAccount,
     // getParamsByCode,
     // sendMailBasic,
     // sendMailOutlook,
@@ -49,8 +50,20 @@ router.post(
     }
 );
 
-router.post("/new-project", async (req: Request, _: Response, next: NextFunction) => {
-    const body = req.body;
-    const result = await sendMailGoogleNewProject(body);
-    next(result);
-});
+router.post(
+    "/new-project",
+    async (req: Request, _: Response, next: NextFunction) => {
+        const body = req.body;
+        const result = await sendMailGoogleNewProject(body);
+        next(result);
+    }
+);
+
+router.post(
+    "/update-account",
+    async (req: Request, _: Response, next: NextFunction) => {
+        const body = req.body;
+        const result = await sendMailGoogleUpdateAccount(body);
+        next(result);
+    }
+);

@@ -45,7 +45,6 @@ export async function login(params: {
                 { _id: 0, activities: 0 }
             ).lean(),
         ]);
-        console.log("🚀 ~ file: auth.controller.ts:48 ~ account:", account)
         
         if (account && account.password) {
             if (account.failed_login === numberOfTried - 1) {
