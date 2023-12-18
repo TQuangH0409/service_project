@@ -26,6 +26,7 @@ export async function handleReview(params: {
 
     const teachers = await getAllUserByPosition({ position: "TEACHER" });
     const projects = await getAllProjects();
+    const listProject: IProject[] = [];
 
     const assignments: IAssignment[] = [];
     const arrayT_P: (number | string)[][] = (await getArrayTeacherProject())
@@ -65,9 +66,19 @@ export async function handleReview(params: {
         });
     }
 
+    console.log(
+        "🚀 ~ file: handle.controller.ts:223 ~ projects:",
+        projects.body.length
+    );
+    console.log(
+        "🚀 ~ file: handle.controller.ts:223 ~ students:",
+        teachers.body.length
+    );
+
     const limit = params.limit
         ? params.limit
-        : teachers.body.length / projects.body.length;
+        : parseFloat((projects.body.length / teachers.body.length).toFixed()) +
+          1;
     header.push("STT");
     teachers.body.forEach((t) => {
         header.push(t.fullname);
@@ -77,21 +88,30 @@ export async function handleReview(params: {
     // tính tổng cột check số lượng đồ án mà giáo viên đã đk phân công
     function sumColumn(idx: number, a: (number | string)[][]): number {
         let sum = 0;
-        a.forEach((r) => {
-            if (Number.isInteger(r[idx])) {
-                const temp = r[idx] as number;
-                sum = sum + temp;
+        a.forEach((r, i) => {
+            if (i > 0) {
+                if (Number.isInteger(r[idx])) {
+                    const temp = r[idx] as number;
+                    sum = sum + temp;
+                }
             }
         });
         return sum;
     }
     // đánh đấu giáo viện đk phân công đồ án
-    function createRow(idx: number, size: number): number[] {
-        const rowProject: number[] = [];
+    function createRow(
+        fullname: string,
+        idx: number,
+        size: number,
+        is?: boolean
+    ): (number | string)[] {
+        const rowProject: (number | string)[] = [];
         for (let i = 0; i < size; i++) {
-            rowProject.push(0);
+            i === 0 ? rowProject.push(fullname) : rowProject.push(0);
         }
-        rowProject[idx] = 1;
+        if (!is) {
+            rowProject[idx] = 1;
+        }
         return rowProject;
     }
 
@@ -113,23 +133,29 @@ export async function handleReview(params: {
         project: number,
         teacher: string,
         size: number,
-        limit: number
-    ): number[] {
-        let maxCompatibility = 0;
-        let temp = 0;
+        limit: number,
+        fullname: string
+    ): (number | string)[] {
+        let maxCompatibility = Number.NEGATIVE_INFINITY;
+        let temp = 1;
 
         // lay ra cac giao vien co so do an < 3
         const teacherCheckSum: number[] = [];
         teachers.body!.forEach((t, idx) => {
-            if (sumColumn(idx, array) < limit && t.id !== teacher) {
-                teacherCheckSum.push(idx);
+            if (sumColumn(idx + 1, array) < limit && t.id !== teacher) {
+                teacherCheckSum.push(idx + 1);
             }
         });
+
+        if (teacherCheckSum.length === 0) {
+            listProject.push(projects.body![project]);
+            return createRow(fullname, temp, size, true);
+        }
 
         // phan cong giao vien
         arrayT_P[project].forEach((a, idx) => {
             let compatibility = 0;
-            if (teacherCheckSum.includes(idx)) {
+            if (teacherCheckSum.includes(idx) && idx > 0) {
                 if (Number.isInteger(a)) {
                     const temp_a = a as number;
                     compatibility = temp_a;
@@ -137,23 +163,18 @@ export async function handleReview(params: {
                         maxCompatibility = compatibility;
                         temp = idx;
                     }
-                    return success.ok(array);
                 }
             }
         });
 
         const decision = checkAssignment(
             assignments,
-            teachers.body![temp].email
+            teachers.body![temp - 1].email
         );
 
         if (decision === undefined) {
             const assignment: IAssignment = {
-                teacher: teachers.body![temp].id,
-
-                // teacher_name: teachers![temp].name,
-                // teacher_phone: teachers![temp].phone,
-                // teacher_email: teachers[temp].email,
+                teacher: teachers.body![temp - 1].id,
                 project: [
                     {
                         id: projects.body![project].id,
@@ -174,24 +195,22 @@ export async function handleReview(params: {
             });
         }
 
-        return createRow(temp, size);
+        return createRow(fullname, temp, size);
     }
 
     projects.body.forEach((p: IProject, idx) => {
-        const temp_e: (string | number)[] = [];
-        temp_e.push(p.name);
         const temp = assignTheProjectToTheTeacher(
             idx,
             p.teacher_instruct_id,
-            teachers.body!.length,
-            limit
+            header.length,
+            limit,
+            p.name
         );
-        temp_e.push(...temp);
-        array.push(temp_e);
+        array.push(temp);
     });
 
-    const sum: number[] = [];
-    teachers.body.forEach((p, idx) => {
+    const sum: (number | string)[] = [];
+    header.forEach((p, idx) => {
         const a = sumColumn(idx, array);
         sum.push(a);
     });
@@ -200,7 +219,8 @@ export async function handleReview(params: {
 
     const result: IArray_Assignment = {
         array: array,
-        assignment: undefined,
+        assignment: assignments,
+        listProject: listProject,
     };
     return success.ok(result);
 }
@@ -211,8 +231,10 @@ export async function handleInstruct(params: {
 }): Promise<ResultSuccess> {
     const array: (number | string)[][] = [];
     const header: string[] = [];
+    const listStudent: IUser[] = [];
 
     const teachers = await getAllUserByPosition({ position: "TEACHER" });
+
     const students = await getAllUserByPosition({ position: "STUDENT" });
 
     const assignments: IAssignment[] = [];
@@ -252,6 +274,15 @@ export async function handleInstruct(params: {
             ],
         });
     }
+
+    console.log(
+        "🚀 ~ file: handle.controller.ts:223 ~ students:",
+        students.body.length
+    );
+    console.log(
+        "🚀 ~ file: handle.controller.ts:223 ~ students:",
+        teachers.body.length
+    );
 
     const limit = params.limit
         ? params.limit
@@ -329,6 +360,7 @@ export async function handleInstruct(params: {
             }
         });
         if (teacherCheckSum.length === 0) {
+            listStudent.push(students.body![project]);
             return createRow(fullname, temp, size, true);
         }
         // phan cong giao vien
@@ -354,10 +386,6 @@ export async function handleInstruct(params: {
         if (decision === undefined) {
             const assignment: IAssignment = {
                 teacher: teachers.body![temp - 1].id,
-
-                // teacher_name: teachers![temp].name,
-                // teacher_phone: teachers![temp].phone,
-                // teacher_email: teachers[temp].email,
                 student: [
                     {
                         id: students.body![project].id,
@@ -365,7 +393,7 @@ export async function handleInstruct(params: {
                     },
                 ],
                 id: v1(),
-                type: ETYPE.REVIEW,
+                type: ETYPE.INSTRUCT,
                 project: [],
                 created_time: new Date(),
                 created_by: params.userId,
@@ -377,10 +405,6 @@ export async function handleInstruct(params: {
                 coincidence: maxCompatibility,
             });
         }
-        console.log(
-            "🚀 ~ file: handle.controller.ts:319 ~ teacherCheckSum:",
-            teacherCheckSum
-        );
         return createRow(fullname, temp, size);
     }
 
@@ -405,7 +429,8 @@ export async function handleInstruct(params: {
 
     const result: IArray_Assignment = {
         array: array,
-        assignment: undefined,
+        assignment: assignments,
+        listStudent: listStudent,
     };
     return success.ok(result);
 }

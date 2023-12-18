@@ -225,3 +225,120 @@ function objectToHtmlList(obj: Record<string, any>): string {
     list += "</ul>";
     return list;
 }
+
+export async function sendMailGoogleInstruct(params: {
+    teacher: {
+        fullname: string;
+        email: string;
+    };
+    student: [
+        {
+            fullname: string;
+            email: string;
+        }
+    ];
+}): Promise<ResultSuccess> {
+    // Đường dẫn URL đến file cần tải
+
+    // Gửi mail cho sinh viên
+
+    const listMailStudent = params.student;
+
+    const sendStudent = await Promise.all(
+        listMailStudent.map(async (e) => {
+            return (await transport()).sendMail({
+                from: "[Hệ thống trường ĐHBK Hà Nội]<trongquangvu80@gmail.com>",
+                to: `${e.email}`,
+                subject: "Giáo viên hướng dẫn đồ án tốt nghiệp",
+                html: `
+                <h1>Kính gửi: ${e.fullname}!</h1>
+                <p>Hệ thống nhà trường đã phân công giáo viên hướng dẫn đồ án tốt nghiệp</p>
+                <p> Giáo viên hướng dẫn: ${params.teacher.fullname} </p>
+                <p> Email: ${params.teacher.email} </p>
+                <p>Vui lòng đăng nhập hệ thống để kiểm tra và liên hệ với giáo viên</p>
+        `,
+            });
+        })
+    );
+
+    let str: string = "<table>";
+
+    listMailStudent.map((s) => {
+        str += `<tr><td>Sinh viên : ${s.fullname}</td></tr><tr><td>Email : ${s.email}</td></tr>`;
+    });
+
+    str += "</table>";
+
+    const sendTeacher = (await transport()).sendMail({
+        from: "[Hệ thống trường ĐHBK Hà Nội]<trongquangvu80@gmail.com>",
+        to: `${params.teacher.email}`,
+        subject: "Phân công sinh viên cho giáo viên hướng dẫn tốt nghiệp",
+        html: `
+        <h1>Kính gửi: ${params.teacher.fullname}!</h1>
+        <p>Hệ thống nhà trường đã phân công thầy/cô hướng dẫn sinh viên</p>
+        ${str}
+        <p>Vui lòng đăng nhập hệ thống để kiểm tra và liên hệ với sinh viên</p>
+`,
+    });
+    return success.ok({ message: "successful" });
+}
+
+
+export async function sendMailGoogleReview(params: {
+    teacher: {
+        fullname: string;
+        email: string;
+    };
+    student: [
+        {
+            fullname: string;
+            email: string;
+            project: string;
+        }
+    ];
+}): Promise<ResultSuccess> {
+    // Đường dẫn URL đến file cần tải
+
+    // Gửi mail cho sinh viên
+
+    const listMailStudent = params.student;
+
+    const sendStudent = await Promise.all(
+        listMailStudent.map(async (e) => {
+            return (await transport()).sendMail({
+                from: "[Hệ thống trường ĐHBK Hà Nội]<trongquangvu80@gmail.com>",
+                to: `${e.email}`,
+                subject: "Giáo viên phản biện đồ án tốt nghiệp",
+                html: `
+                <h1>Kính gửi: ${e.fullname}!</h1>
+                <p>Hệ thống nhà trường đã phân công giáo viên phản biện đồ án tốt nghiệp </p>
+                <p>Đồ án tốt nghiệp: ${e.project}</p>
+                <p> Giáo viên hướng dẫn: ${params.teacher.fullname} </p>
+                <p> Email: ${params.teacher.email} </p>
+                <p>Vui lòng đăng nhập hệ thống để kiểm tra</p>
+        `,
+            });
+        })
+    );
+
+    let str: string = "<table>";
+
+    listMailStudent.map((s) => {
+        str += `<tr><td>Sinh viên : ${s.fullname}</td> <td>Đề tài : ${s.project}</td> </tr> <td>Email : ${s.email}</td> </tr>`;
+    });
+
+    str += "</table>";
+
+    const sendTeacher = (await transport()).sendMail({
+        from: "[Hệ thống trường ĐHBK Hà Nội]<trongquangvu80@gmail.com>",
+        to: `${params.teacher.email}`,
+        subject: "Phân công sinh viên cho giáo viên phản biện đồ án tốt nghiệp",
+        html: `
+        <h1>Kính gửi: ${params.teacher.fullname}!</h1>
+        <p>Hệ thống nhà trường đã phân công thầy/cô hướng dẫn sinh viên</p>
+        ${str}
+        <p>Vui lòng đăng nhập hệ thống để kiểm tra và liên hệ với sinh viên</p>
+`,
+    });
+    return success.ok({ message: "successful" });
+}
