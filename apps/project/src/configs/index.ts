@@ -84,12 +84,12 @@ export const configs = {
         },
         reseach_area: {
             prefix:
-                process.env.CA_ASSIGNMENT_FILE_SERVICE_PREFIX ||
+                process.env.CA_PROJECT_FILE_SERVICE_PREFIX ||
                 "/api/v1/in/research-areas",
             host:
-                process.env.CA_ASSIGNMENT_FILE_SERVICE_HOST ||
+                process.env.CA_PROJECT_RESEARCH_AREA_SERVICE_HOST ||
                 "http://127.0.0.1",
-            port: process.env.CA_ASSIGNMENT_FILE_SERVICE_PORT || "6804",
+            port: process.env.CA_PROJECT_FILE_SERVICE_PORT || "6804",
             getUrl: function (): string {
                 return `${this.host}:${this.port}${this.prefix}`;
             },
