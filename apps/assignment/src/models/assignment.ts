@@ -14,9 +14,9 @@ const assignmentSchema = new mongoose.Schema(
             require: true,
             enum: ETYPE,
         },
-        student: [
-            {
-                type: {
+        student: {
+            type: [
+                {
                     id: {
                         type: String,
                         required: true,
@@ -26,17 +26,18 @@ const assignmentSchema = new mongoose.Schema(
                         required: true,
                     },
                 },
-                required: false,
-                _id: false,
-            },
-        ],
+            ],
+            required: false,
+            _id: false,
+        },
+
         teacher: {
             type: String,
             require: false,
         },
-        project: [
-            {
-                type: {
+        project: {
+            type: [
+                {
                     id: {
                         type: String,
                         required: true,
@@ -46,10 +47,11 @@ const assignmentSchema = new mongoose.Schema(
                         required: true,
                     },
                 },
-                required: false,
-                _id: false,
-            },
-        ],
+            ],
+            required: false,
+            _id: false,
+        },
+
         created_time: {
             type: Date,
             require: false,

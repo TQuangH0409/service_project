@@ -6,6 +6,7 @@ import {
     handleInstruct,
     handleReview,
 } from "../../controller/handle.controller";
+import { getAssignmentByStudent } from "../../controller/assignment.controller";
 
 export const router = express.Router();
 
@@ -36,11 +37,19 @@ router.get(
     }
 );
 
-router.get(
-    "/review",
-    async (req: Request, _: Response, next: NextFunction) => {
-        const result = await handleReview({ userId: "" });
+router.get("/review", async (req: Request, _: Response, next: NextFunction) => {
+    const result = await handleReview({ userId: "" });
 
-        next(result);
-    }
-);
+    next(result);
+});
+
+router.get("/", async (req: Request, _: Response, next: NextFunction) => {
+    const { student, teacher, project } = req.query;
+    const result = await getAssignmentByStudent({
+        student: student as string,
+        teacher: teacher as string,
+        project: project as string,
+    });
+
+    next(result);
+});

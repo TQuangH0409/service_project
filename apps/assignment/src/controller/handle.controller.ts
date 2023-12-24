@@ -14,6 +14,7 @@ import { IArray_Assignment } from "../interfaces/response/assignment.body";
 import Array from "../models/array";
 import { IUser } from "../interfaces/response/user.body";
 import { isNumeric } from "utils";
+import Assignment from "../models/assignment";
 
 export async function handle(params: { limit: number; type: ETYPE }) {}
 
@@ -389,7 +390,7 @@ export async function handleInstruct(params: {
                 student: [
                     {
                         id: students.body![project].id,
-                        coincidence: maxCompatibility,
+                        coincidence: maxCompatibility || 0,
                     },
                 ],
                 id: v1(),
@@ -402,7 +403,7 @@ export async function handleInstruct(params: {
         } else {
             decision.project.push({
                 id: students.body![project].id,
-                coincidence: maxCompatibility,
+                coincidence: maxCompatibility || 0,
             });
         }
         return createRow(fullname, temp, size);
@@ -426,6 +427,8 @@ export async function handleInstruct(params: {
     });
 
     array.push(sum);
+
+    await Assignment.create(assignments);
 
     const result: IArray_Assignment = {
         array: array,
