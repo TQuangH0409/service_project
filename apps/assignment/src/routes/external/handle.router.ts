@@ -44,11 +44,12 @@ router.get("/review", async (req: Request, _: Response, next: NextFunction) => {
 });
 
 router.get("/", async (req: Request, _: Response, next: NextFunction) => {
-    const { student, teacher, project } = req.query;
+    const { student, teacher, project, type } = req.query;
     const result = await getAssignmentByStudent({
         student: student as string,
         teacher: teacher as string,
         project: project as string,
+        type: type as string,
     });
 
     next(result);

@@ -9,6 +9,7 @@ import {
     deleteProject,
     findProject,
     getProjectById,
+    getProjectByStudent,
     getProjectInstructByTeacher,
     getProjectReviewByTeacher,
     updateProject,
@@ -77,6 +78,18 @@ router.get(
         const result = await getProjectInstructByTeacher({
             ...query,
             teacher_instruct_id: id,
+        });
+        next(result);
+    }
+);
+
+router.get(
+    "/student/:id",
+    verifyRole("SA", "T", "S"),
+    findProjectValidator(),
+    async (req: Request, _: Response, next: NextFunction) => {
+        const result = await getProjectByStudent({
+            student: req.params.id,
         });
         next(result);
     }

@@ -17,6 +17,7 @@ export async function getAssignmentByStudent(params: {
     student?: string;
     teacher?: string;
     project?: string;
+    type: string;
 }): Promise<ResultSuccess> {
     const ass = await Assignment.findOne({
         $or: [
@@ -36,6 +37,8 @@ export async function getAssignmentByStudent(params: {
                 },
             },
         ],
+
+        type: params.type,
     });
 
     if (!ass) {
