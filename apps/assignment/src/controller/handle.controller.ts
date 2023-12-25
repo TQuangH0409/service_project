@@ -276,20 +276,11 @@ export async function handleInstruct(params: {
         });
     }
 
-    console.log(
-        "🚀 ~ file: handle.controller.ts:223 ~ students:",
-        students.body.length
-    );
-    console.log(
-        "🚀 ~ file: handle.controller.ts:223 ~ students:",
-        teachers.body.length
-    );
-
     const limit = params.limit
         ? params.limit
-        : parseFloat((students.body.length / teachers.body.length).toFixed());
+        : parseFloat((students.body.length / teachers.body.length).toFixed()) +
+          1;
     header.push("STT");
-    console.log("🚀 ~ file: handle.controller.ts:259 ~ limit:", limit);
     teachers.body.forEach((t) => {
         header.push(t.fullname);
     });
@@ -346,7 +337,7 @@ export async function handleInstruct(params: {
         limit: number,
         fullname: string
     ): (number | string)[] {
-        let maxCompatibility = Number.NEGATIVE_INFINITY;
+        let maxCompatibility = 0;
         let temp = 1;
 
         // lay ra cac giao vien co so do an < 3
@@ -381,7 +372,11 @@ export async function handleInstruct(params: {
 
         const decision = checkAssignment(
             assignments,
-            teachers.body![temp - 1].email
+            teachers.body![temp - 1].id
+        );
+        console.log(
+            "🚀 ~ file: handle.controller.ts:386 ~ decision:",
+            decision
         );
 
         if (decision === undefined) {
@@ -401,7 +396,7 @@ export async function handleInstruct(params: {
             };
             assignments.push(assignment);
         } else {
-            decision.project.push({
+            decision.student.push({
                 id: students.body![project].id,
                 coincidence: maxCompatibility || 0,
             });
