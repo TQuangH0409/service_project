@@ -4,7 +4,7 @@ export interface IProject {
     student_id: string;
     teacher_instruct_id: string;
     teacher_review_id?: string;
-    research_area: IResearchAreaP[];
+    research_area: string[];
 }
 
 export interface IResearchAreaP {

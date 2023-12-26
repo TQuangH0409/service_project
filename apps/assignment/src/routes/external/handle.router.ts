@@ -1,7 +1,9 @@
 import express, { NextFunction, Request, Response } from "express";
 import {
+    getArraySpecializeProject,
     getArraySpecializeStudent,
     getArraySpecializeTeacher,
+    getArrayTeacherProject,
     getArrayTeacherStudent,
     handleInstruct,
     handleReview,
@@ -22,8 +24,20 @@ router.get("/S-T", async (req: Request, _: Response, next: NextFunction) => {
     next(result);
 });
 
+router.get("/S-P", async (req: Request, _: Response, next: NextFunction) => {
+    const result = await getArraySpecializeProject();
+
+    next(result);
+});
+
 router.get("/T-St", async (req: Request, _: Response, next: NextFunction) => {
     const result = await getArrayTeacherStudent();
+
+    next(result);
+});
+
+router.get("/T-P", async (req: Request, _: Response, next: NextFunction) => {
+    const result = await getArrayTeacherProject();
 
     next(result);
 });
@@ -42,7 +56,11 @@ router.get(
 );
 
 router.get("/review", async (req: Request, _: Response, next: NextFunction) => {
-    const result = await handleReview({ userId: "" });
+    const result = await handleReview({
+        limit: req.query.limit as unknown as number,
+        userId: "",
+        type: req.query.type as string,
+    });
 
     next(result);
 });

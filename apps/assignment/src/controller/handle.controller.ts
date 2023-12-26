@@ -20,6 +20,7 @@ export async function handle(params: { limit: number; type: ETYPE }) {}
 export async function handleReview(params: {
     limit?: number;
     userId: string;
+    type: string;
 }): Promise<ResultSuccess> {
     const array: (number | string)[][] = [];
     const header: string[] = [];
@@ -66,15 +67,6 @@ export async function handleReview(params: {
             ],
         });
     }
-
-    console.log(
-        "🚀 ~ file: handle.controller.ts:223 ~ projects:",
-        projects.body.length
-    );
-    console.log(
-        "🚀 ~ file: handle.controller.ts:223 ~ students:",
-        teachers.body.length
-    );
 
     const limit = params.limit
         ? params.limit
@@ -137,7 +129,7 @@ export async function handleReview(params: {
         limit: number,
         fullname: string
     ): (number | string)[] {
-        let maxCompatibility = Number.NEGATIVE_INFINITY;
+        let maxCompatibility = 0;
         let temp = 1;
 
         // lay ra cac giao vien co so do an < 3
@@ -170,16 +162,16 @@ export async function handleReview(params: {
 
         const decision = checkAssignment(
             assignments,
-            teachers.body![temp - 1].email
+            teachers.body![temp - 1].id
         );
 
         if (decision === undefined) {
             const assignment: IAssignment = {
-                teacher: teachers.body![temp - 1],
+                teacher: { ...teachers.body![temp - 1] },
                 project: [
                     {
-                        id: projects.body![project].id,
-                        coincidence: maxCompatibility,
+                        ...projects.body![project],
+                        coincidence: maxCompatibility || 0,
                     },
                 ],
                 id: v1(),
@@ -191,8 +183,8 @@ export async function handleReview(params: {
             assignments.push(assignment);
         } else {
             decision.project.push({
-                id: projects.body![project].id,
-                coincidence: maxCompatibility,
+                ...projects.body![project],
+                coincidence: maxCompatibility || 0,
             });
         }
 
@@ -217,6 +209,10 @@ export async function handleReview(params: {
     });
 
     array.push(sum);
+
+    if (params.type !== "DRAFT") {
+        await Assignment.create(assignments);
+    }
 
     const result: IArray_Assignment = {
         array: array,
@@ -437,7 +433,6 @@ export async function getArraySpecializeProject(): Promise<ResultSuccess> {
     const array: number[][] = [];
     const projects = await getAllProjects();
     const reseach_areas = await getAllResearchAreas();
-
     if (!(projects && projects.body)) {
         throw new HttpError({
             status: HttpStatus.BAD_REQUEST,
@@ -476,7 +471,7 @@ export async function getArraySpecializeProject(): Promise<ResultSuccess> {
         const row: number[] = [];
 
         reseach_areas.body!.map((s) => {
-            if (p.research_area.find((r) => r.number === s.number)) {
+            if (p.research_area.find((r) => r === s.number)) {
                 row.push(1);
             } else {
                 row.push(0);
