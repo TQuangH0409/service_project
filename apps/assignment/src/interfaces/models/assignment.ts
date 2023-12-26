@@ -1,8 +1,10 @@
+import { IResearchAreaT, IUser } from "../response/user.body";
+
 export interface IAssignment {
     id: string;
     type: ETYPE;
-    student: IStudentAss[];
-    teacher: string;
+    student: IUserAss[];
+    teacher: IUserAss;
     project: IProjectAss[];
     created_time: Date;
     created_by: string;
@@ -13,9 +15,15 @@ export interface IProjectAss {
     coincidence: number;
 }
 
-export interface IStudentAss {
+export interface IUserAss {
     id: string;
-    coincidence: number;
+    number: string;
+    fullname: string;
+    email: string;
+    position: string;
+    research_area: IResearchAreaT[];
+    school: string
+    coincidence?: number;
 }
 
 export enum ETYPE {

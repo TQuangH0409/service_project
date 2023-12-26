@@ -31,7 +31,11 @@ router.get("/T-St", async (req: Request, _: Response, next: NextFunction) => {
 router.get(
     "/instruct",
     async (req: Request, _: Response, next: NextFunction) => {
-        const result = await handleInstruct({ userId: "" });
+        const result = await handleInstruct({
+            limit: req.query.limit as unknown as number,
+            userId: "",
+            type: req.query.type as string,
+        });
 
         next(result);
     }

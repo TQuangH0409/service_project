@@ -21,9 +21,49 @@ const assignmentSchema = new mongoose.Schema(
                         type: String,
                         required: true,
                     },
+                    number: {
+                        type: String,
+                        required: true,
+                    },
+                    fullname: {
+                        type: String,
+                        required: true,
+                    },
+                    email: {
+                        type: String,
+                        required: true,
+                    },
+                    position: {
+                        type: String,
+                        required: true,
+                    },
+                    research_area: {
+                        type: [
+                            {
+                                name: {
+                                    type: String,
+                                    required: false,
+                                },
+                                number: {
+                                    type: String,
+                                    required: false,
+                                },
+                                experience: {
+                                    type: String,
+                                    required: false,
+                                },
+                            },
+                        ],
+                        required: true,
+                        _id: false,
+                    },
+                    school: {
+                        type: Number,
+                        required: false,
+                    },
                     coincidence: {
                         type: Number,
-                        required: true,
+                        required: false,
                     },
                 },
             ],
@@ -32,8 +72,59 @@ const assignmentSchema = new mongoose.Schema(
         },
 
         teacher: {
-            type: String,
-            require: false,
+            type: {
+                id: {
+                    type: String,
+                    required: true,
+                },
+                number: {
+                    type: String,
+                    required: true,
+                },
+                fullname: {
+                    type: String,
+                    required: true,
+                },
+                email: {
+                    type: String,
+                    required: true,
+                },
+                position: {
+                    type: String,
+                    required: true,
+                },
+                research_area: {
+                    type: [
+                        {
+                            name: {
+                                type: String,
+                                required: false,
+                            },
+                            number: {
+                                type: String,
+                                required: false,
+                            },
+                            experience: {
+                                type: String,
+                                required: false,
+                            },
+                        },
+                    ],
+                    required: true,
+                    _id: false,
+                },
+                school: {
+                    type: Number,
+                    required: false,
+                },
+                coincidence: {
+                    type: Number,
+                    required: false,
+                },
+            },
+
+            required: false,
+            _id: false,
         },
         project: {
             type: [

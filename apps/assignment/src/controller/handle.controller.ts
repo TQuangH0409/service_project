@@ -3,7 +3,6 @@ import {
     ETYPE,
     ETYPEARRAY,
     IAssignment,
-    IStudentAss,
 } from "../interfaces/models/assignment";
 import { getAllProjects } from "../services/project.service";
 import { getAllResearchAreas } from "../services/research_area.service";
@@ -30,6 +29,7 @@ export async function handleReview(params: {
     const listProject: IProject[] = [];
 
     const assignments: IAssignment[] = [];
+    const assignmentResults: IAssignment[] = [];
     const arrayT_P: (number | string)[][] = (await getArrayTeacherProject())
         .data;
 
@@ -123,7 +123,7 @@ export async function handleReview(params: {
     ): IAssignment | undefined {
         let result: IAssignment | undefined = undefined;
         ass.forEach((a) => {
-            if (a.teacher === teacher) {
+            if (a.teacher.id === teacher) {
                 result = a;
             }
         });
@@ -175,7 +175,7 @@ export async function handleReview(params: {
 
         if (decision === undefined) {
             const assignment: IAssignment = {
-                teacher: teachers.body![temp - 1].id,
+                teacher: teachers.body![temp - 1],
                 project: [
                     {
                         id: projects.body![project].id,
@@ -229,7 +229,9 @@ export async function handleReview(params: {
 export async function handleInstruct(params: {
     limit?: number;
     userId: string;
+    type: string;
 }): Promise<ResultSuccess> {
+    console.log(params);
     const array: (number | string)[][] = [];
     const header: string[] = [];
     const listStudent: IUser[] = [];
@@ -323,7 +325,7 @@ export async function handleInstruct(params: {
     ): IAssignment | undefined {
         let result: IAssignment | undefined = undefined;
         ass.forEach((a) => {
-            if (a.teacher === teacher) {
+            if (a.teacher.id === teacher) {
                 result = a;
             }
         });
@@ -374,17 +376,12 @@ export async function handleInstruct(params: {
             assignments,
             teachers.body![temp - 1].id
         );
-        console.log(
-            "🚀 ~ file: handle.controller.ts:386 ~ decision:",
-            decision
-        );
-
         if (decision === undefined) {
             const assignment: IAssignment = {
-                teacher: teachers.body![temp - 1].id,
+                teacher: { ...teachers.body![temp - 1] },
                 student: [
                     {
-                        id: students.body![project].id,
+                        ...students.body![project],
                         coincidence: maxCompatibility || 0,
                     },
                 ],
@@ -397,7 +394,7 @@ export async function handleInstruct(params: {
             assignments.push(assignment);
         } else {
             decision.student.push({
-                id: students.body![project].id,
+                ...students.body![project],
                 coincidence: maxCompatibility || 0,
             });
         }
@@ -423,7 +420,9 @@ export async function handleInstruct(params: {
 
     array.push(sum);
 
-    await Assignment.create(assignments);
+    if (params.type !== "DRAFT") {
+        await Assignment.create(assignments);
+    }
 
     const result: IArray_Assignment = {
         array: array,
@@ -540,7 +539,7 @@ export async function getArraySpecializeTeacher(): Promise<ResultSuccess> {
 
         reseach_areas.body!.map((s) => {
             const temp = t.research_area.find((r) => r.number === s.number);
-            if (temp) {
+            if (temp && temp.experience) {
                 row.push(temp.experience);
                 row2.push(temp.experience);
             } else {

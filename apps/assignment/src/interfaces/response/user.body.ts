@@ -5,10 +5,11 @@ export interface IUser {
     email: string;
     position: string;
     research_area: IResearchAreaT[];
+    school: string
 }
 
 export interface IResearchAreaT {
     name: string;
     number: string;
-    experience: number;
+    experience?: number;
 }
