@@ -10,4 +10,4 @@ router.use(`${configs.app.prefix}/projects`, verifyToken, projectRouter);
 router.use(`${configs.app.prefix}/in/projects`, inProjectRouter);
 
 // router.use(`${configs.app.prefix}/users`, verifyToken, userRouter);
-// router.use(`${configs.app.prefix}/in/users`, inUserRouter);
+// router.use(`${configs.app.prefix}/in/users`, inUserRouter)
