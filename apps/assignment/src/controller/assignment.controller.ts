@@ -71,6 +71,9 @@ export async function getAssignment(params: {
                     project: p,
                 };
             }
+            return {
+                ...s,
+            };
         });
 
         temp = Object.assign(
