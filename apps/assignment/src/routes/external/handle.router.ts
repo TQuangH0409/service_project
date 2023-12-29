@@ -8,7 +8,10 @@ import {
     handleInstruct,
     handleReview,
 } from "../../controller/handle.controller";
-import { getAssignment } from "../../controller/assignment.controller";
+import {
+    getAssedStudentByTeacher,
+    getAssignment,
+} from "../../controller/assignment.controller";
 
 export const router = express.Router();
 
@@ -64,6 +67,18 @@ router.get("/review", async (req: Request, _: Response, next: NextFunction) => {
 
     next(result);
 });
+
+router.get(
+    "/teacher/:id/students",
+    async (req: Request, _: Response, next: NextFunction) => {
+        const result = await getAssedStudentByTeacher({
+            teacher: req.params.id as unknown as string,
+            type: req.query.type as string,
+        });
+
+        next(result);
+    }
+);
 
 router.get("/", async (req: Request, _: Response, next: NextFunction) => {
     const { student, teacher, project, type } = req.query;

@@ -133,3 +133,26 @@ export async function getAssignment(params: {
 
     return success.ok(temp);
 }
+
+export async function getAssedStudentByTeacher(params: {
+    teacher: string;
+    type: string;
+}): Promise<ResultSuccess> {
+    const ass = await Assignment.findOne({
+        "teacher.id": params.teacher,
+        type: params.type,
+    });
+
+    if (!ass) {
+        return success.ok([]);
+    }
+
+    const students = ass.student.map((s) => {
+        return {
+            id: s.id,
+            fullname: s.fullname,
+        };
+    });
+
+    return success.ok(students);
+}
