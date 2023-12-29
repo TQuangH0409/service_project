@@ -50,6 +50,8 @@ export async function createUser(params: {
     userRoles: string[];
     userId: string;
 }): Promise<Result> {
+    console.log("🚀 ~ file: user.controller.ts:34 ~ params:", params)
+    
     if (!params.userRoles.includes("SA")) {
         if (params.roles?.includes("SA")) {
             return error.actionNotAllowed();
@@ -98,7 +100,7 @@ export async function createUser(params: {
         gen: params.gen,
         degree: params.degree,
         avatar: params.avatar,
-        semester: params.position === "TEACHER" ? params.semester : undefined,
+        semester: params.position !== "TEACHER" ? params.semester : undefined,
         research_area: params.research_area,
         is_active: params.is_active,
         activities: [
