@@ -27,6 +27,7 @@ export interface IUser {
     school?: string;
     gen?: string;
     degree?: string;
+    semester?: string;
     updated_time: Date;
     created_time: Date;
     created_by: string;

@@ -45,6 +45,7 @@ export async function createUser(params: {
     school?: string;
     gen?: string;
     degree?: string;
+    semester?: string;
     is_active: boolean;
     userRoles: string[];
     userId: string;
@@ -97,6 +98,7 @@ export async function createUser(params: {
         gen: params.gen,
         degree: params.degree,
         avatar: params.avatar,
+        semester: params.position === "TEACHER" ? params.semester : undefined,
         research_area: params.research_area,
         is_active: params.is_active,
         activities: [
@@ -147,6 +149,7 @@ export async function updateUser(params: {
     school?: string;
     gen?: string;
     degree?: string;
+    semester?: string;
     userId: string;
     userRoles: string[];
 }): Promise<Result> {
@@ -198,6 +201,7 @@ export async function updateUser(params: {
                 class: params.class,
                 school: params.school,
                 gen: params.gen,
+                semester: params.semester,
                 degree: params.degree,
                 updated_time: new Date(),
             },
@@ -235,6 +239,7 @@ export async function updateUser(params: {
             school: params.school,
             gen: params.gen,
             degree: params.degree,
+            semester: params.semester,
             username: user.fullname,
             email: user.email,
         };
@@ -658,19 +663,25 @@ export async function getTemplateUrl(): Promise<Result> {
 export async function getAllUserByPosition(params: {
     position: string;
     type?: boolean;
+    semester?: string;
 }): Promise<ResultSuccess> {
-    const users = await User.find(
-        { is_active: true, position: params.position },
-        {
-            _id: 0,
-            id: 1,
-            number: 1,
-            fullname: 1,
-            email: 1,
-            position: 1,
-            research_area: 1,
-        }
-    ).then((res) => {
+    const filter =
+        params.position === EPOSITION.STUDENT
+            ? {
+                  is_active: true,
+                  position: params.position,
+                  semester: params.semester,
+              }
+            : { is_active: true, position: params.position };
+    const users = await User.find(filter, {
+        _id: 0,
+        id: 1,
+        number: 1,
+        fullname: 1,
+        email: 1,
+        position: 1,
+        research_area: 1,
+    }).then((res) => {
         const result = res.map(async (u) => {
             let research_area: {
                 [key: string]: string | number | undefined;
