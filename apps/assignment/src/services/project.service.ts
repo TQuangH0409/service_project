@@ -51,3 +51,20 @@ export async function getProjectByStudent(student: string): Promise<{
         }
     }
 }
+
+
+export async function getProjectById(params: {
+    id: string;
+}): Promise<{ body?: IProject; status?: number }> {
+    const url = `${configs.services.project.getUrl()}/${params.id}`;
+    try {
+        const res = await axios.get(`${url}`);
+        return { body: res.data };
+    } catch (e) {
+        if (axios.isAxiosError(e) && e.response?.status) {
+            return { status: e.response?.status };
+        } else {
+            throw new HttpError(error.service(url));
+        }
+    }
+}

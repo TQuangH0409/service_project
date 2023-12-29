@@ -458,10 +458,6 @@ export async function _getUserById(userId: string): Promise<ResultSuccess> {
             message: `the user does not exist`,
         });
     }
-    console.log(
-        "🚀 ~ file: user.controller.ts:463 ~ _getUserById ~ user:",
-        user
-    );
     return success.ok(user);
 }
 

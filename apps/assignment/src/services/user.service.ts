@@ -39,3 +39,20 @@ export async function getAllUserByPosition(params: {
         }
     }
 }
+
+export async function _getUserById(params: { userId: string }): Promise<{
+    body?: IUser;
+    status?: number;
+}> {
+    const url = `${configs.services.ad.getUrl()}users/${params.userId}`;
+    try {
+        const res = await axios.get<IUser>(`${url}`);
+        return { body: res.data };
+    } catch (e) {
+        if (axios.isAxiosError(e) && e.response?.status) {
+            return { status: e.response?.status };
+        } else {
+            throw new HttpError(error.service(url));
+        }
+    }
+}
