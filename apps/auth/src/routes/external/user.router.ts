@@ -9,7 +9,6 @@ import {
     updateUser,
 } from "../../controllers";
 import {
-    CreateUserReqBody,
     ImportUserReqBody,
     UpdateUserReqBody,
 } from "../../interfaces/request";
@@ -17,8 +16,6 @@ import { FindReqQuery } from "../../interfaces/request";
 import { verifyRole } from "../../middlewares";
 import {
     findUserValidator,
-    importUserValidator,
-    updateUserValidator,
 } from "../../validator";
 
 export const router: Router = Router();
@@ -42,7 +39,7 @@ router.post(
     "/",
     verifyRole("SA"),
     async (req: Request, _: Response, next: NextFunction) => {
-        const body: CreateUserReqBody = req.body;
+        const body = req.body;
         const payload = req.payload as Payload;
         const result = await createUser({
             ...body,

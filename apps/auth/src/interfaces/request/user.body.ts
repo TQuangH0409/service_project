@@ -1,17 +1,17 @@
 import { EPOSITION, IResearchArea } from "../models";
 
-export interface CreateUserReqBody {
-    email: string;
-    number: string;
-    fullname: string;
-    roles: string[];
-    phone?: string;
-    password: string;
-    position: EPOSITION;
-    is_active: boolean;
-    avatar?: string;
-    research_area: IResearchArea[];
-}
+// export interface CreateUserReqBody {
+//     email: string;
+//     number: string;
+//     fullname: string;
+//     roles: string[];
+//     phone?: string;
+//     password: string;
+//     position: EPOSITION;
+//     is_active: boolean;
+//     avatar?: string;
+//     research_area: IResearchArea[];
+// }
 
 export interface FindUserReqBody {
     id: string;
