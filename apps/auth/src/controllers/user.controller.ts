@@ -674,45 +674,46 @@ export async function getAllUserByPosition(params: {
             position: 1,
             research_area: 1,
         }
-    )
-        .then((res) => {
-            const result = res.map(async (u) => {
-                let research_area: {
-                    [key: string]: string | number | undefined;
-                }[] = [];
+    ).then((res) => {
+        const result = res.map(async (u) => {
+            let research_area: {
+                [key: string]: string | number | undefined;
+            }[] = [];
 
-                if (u.research_area) {
-                    if (!params.type) {
-                        const ra = u.research_area.map((r) =>
-                            getResearchAreaByNumber(r.number)
-                        );
+            if (u.research_area) {
+                if (!params.type) {
+                    const ra = u.research_area.map((r) =>
+                        getResearchAreaByNumber(r.number)
+                    );
 
-                        const r = await Promise.all(ra);
-                        r.forEach((e, idx) =>
+                    const r = await Promise.all(ra);
+                    r.forEach((e, idx) => {
+                        if (e.body) {
                             research_area.push({
-                                name: e.body!.name,
-                                number: e.body!.number,
+                                name: e.body.name,
+                                number: e.body.number,
                                 experience: u.research_area![idx].experience,
-                            })
-                        );
-                    } else {
-                        const ra = u.research_area.map((r, idx) =>
-                            research_area.push({
-                                number: r.number,
-                                experience: r.experience,
-                            })
-                        );
-                    }
+                            });
+                        }
+                    });
+                } else {
+                    const ra = u.research_area.map((r, idx) =>
+                        research_area.push({
+                            number: r.number,
+                            experience: r.experience,
+                        })
+                    );
                 }
+            }
 
-                const data = {
-                    ...u.toObject(),
-                    research_area: research_area,
-                };
-                return data;
-            });
-            return Promise.all(result);
+            const data = {
+                ...u.toObject(),
+                research_area: research_area,
+            };
+            return data;
         });
+        return Promise.all(result);
+    });
 
     return success.ok(users);
 }
