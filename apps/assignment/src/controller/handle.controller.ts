@@ -10,9 +10,7 @@ import { getAllUserByPosition } from "../services/user.service";
 import { v1 } from "uuid";
 import { IProject } from "../interfaces/response/project.body";
 import { IArray_Assignment } from "../interfaces/response/assignment.body";
-import Array from "../models/array";
 import { IUser } from "../interfaces/response/user.body";
-import { isNumeric } from "utils";
 import Assignment from "../models/assignment";
 
 export async function handle(params: { limit: number; type: ETYPE }) {}

@@ -245,9 +245,9 @@ export async function getProjectById(params: {
                 checkUserExits({ userId: res.teacher_instruct_id }),
             ]);
 
-            let teacher_review: { body?: IUser; status?: number; }  = {};
+            let teacher_review: { body?: IUser; status?: number } = {};
             if (res.teacher_review_id) {
-                 teacher_review = await checkUserExits({
+                teacher_review = await checkUserExits({
                     userId: res.teacher_review_id,
                 });
 
@@ -341,15 +341,13 @@ export async function getProjectById(params: {
             const research_area: {
                 [key: string]: string | number | undefined;
             }[] = [];
-            const ra = res.research_area.map((r) =>
-                getResearchAreaByNumber(r)
-            );
+            const ra = res.research_area.map((r) => getResearchAreaByNumber(r));
 
             const r = await Promise.all(ra);
             r.forEach((e, idx) =>
                 research_area.push({
                     name: e.body!.name,
-                    number: e.body!.number
+                    number: e.body!.number,
                 })
             );
 
@@ -365,7 +363,6 @@ export async function getProjectById(params: {
                     : undefined,
             });
 
-            
             return result;
         }
 
@@ -671,6 +668,7 @@ export async function getProjectByStudent(params: {
             student_id: 1,
             teacher_instruct_id: 1,
             teacher_review_id: 1,
+            research_area: 1,
         }
     );
 
@@ -691,8 +689,6 @@ export async function getProjectByStudent(params: {
             ],
         });
     }
-
-    
 
     return success.ok(check);
 }

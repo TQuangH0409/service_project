@@ -1,5 +1,4 @@
 import express, { NextFunction, Request, Response } from "express";
-import { getAssignmentByStudent } from "../../controller/assignment.controller";
 
 export const router = express.Router();
 
