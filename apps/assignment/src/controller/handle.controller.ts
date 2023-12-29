@@ -30,7 +30,6 @@ export async function handleReview(params: {
     const listProject: IProject[] = [];
 
     const assignments: IAssignment[] = [];
-    const assignmentResults: IAssignment[] = [];
     const arrayT_P: (number | string)[][] = (await getArrayTeacherProject())
         .data;
 
