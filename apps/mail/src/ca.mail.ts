@@ -2,12 +2,6 @@ import createApp from "app";
 import { router } from "./routers";
 import { configs } from "./configs";
 import logger from "logger";
-import {
-    connectedToMongo,
-    connectedToRedis,
-    connectMongo,
-    connectRedis,
-} from "./database";
 
 function main(): void {
     const app = createApp(router, configs);
@@ -19,16 +13,7 @@ function main(): void {
             logger.info("Listening on: %s:%d", host, port);
         });
     };
-    // connectMongo(() => {
-        // if (connectedToRedis()) {
-            startApp();
-        // }
-    // });
-    // connectRedis(() => {
-        // if (connectedToMongo()) {
-            // startApp();
-        // }
-    // });
+    startApp();
 }
 
 main();

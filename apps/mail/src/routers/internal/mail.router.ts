@@ -1,36 +1,17 @@
-import {
-    SendMailBody,
-    SendMailResetPassReqBody,
-} from "../../interfaces/request/mail.body";
+import { SendMailResetPassReqBody } from "../../interfaces/request/mail.body";
 
 import { NextFunction, Request, Response, Router } from "express";
 import {
-    sendMailGoogle,
     sendMailGoogleForgotPassword,
     sendMailGoogleInstruct,
     sendMailGoogleNewAccount,
     sendMailGoogleNewProject,
     sendMailGoogleReview,
     sendMailGoogleUpdateAccount,
-    // getParamsByCode,
-    // sendMailBasic,
-    // sendMailOutlook,
-    // sendMailResetPassword,
 } from "../../controllers";
 import { sendMailResetPasswordValidator } from "../../validator";
 
 export const router: Router = Router();
-
-// router.get("/:code", async (req: Request, _: Response, next: NextFunction) => {
-//     const code = req.params.code as string;
-//     const result = await getParamsByCode(code);
-//     next(result);
-// });
-
-router.get("/", async (req: Request, _: Response, next: NextFunction) => {
-    const result = await sendMailGoogle();
-    next(result);
-});
 
 router.post(
     "/forgot-password",

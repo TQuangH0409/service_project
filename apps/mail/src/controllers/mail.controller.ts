@@ -1,7 +1,5 @@
-import { v1 } from "uuid";
-import { Result, HttpStatus, success, HttpError, ResultSuccess } from "app";
-
-import nodemailer, { Transporter } from "nodemailer";
+import { success, ResultSuccess } from "app";
+import nodemailer from "nodemailer";
 import { configs } from "../configs";
 import { google } from "googleapis";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
@@ -40,29 +38,12 @@ async function transport(): Promise<
     return transport;
 }
 
-export async function sendMailGoogle() {
-    let info = await (
-        await transport()
-    ).sendMail({
-        from: "<trongquangvu80@gmail.com>",
-        to: "quang.vt198256@sis.hust.edu.vn",
-        subject: "Testing, testing, 123",
-        html: `
-    <h1>Hello there</h1>
-    <p>Isn't NodeMailer useful?</p>
-    `,
-    });
-
-    console.log(info.messageId);
-    return success.ok("info.messageId");
-}
-
 export async function sendMailGoogleForgotPassword(params: {
     password: string;
     username: string;
     email: string;
 }): Promise<ResultSuccess> {
-    let info = await (
+    await (
         await transport()
     ).sendMail({
         from: "<trongquangvu80@gmail.com",
@@ -81,7 +62,7 @@ export async function sendMailGoogleNewAccount(params: {
     username: string;
     email: string;
 }): Promise<ResultSuccess> {
-    let info = await (
+    await (
         await transport()
     ).sendMail({
         from: "Hệ thống trường ĐHBK Hà Nội",
@@ -127,7 +108,7 @@ export async function sendMailGoogleNewProject(params: {
         attachments = undefined;
     }
 
-    let info = (await transport()).sendMail({
+    (await transport()).sendMail({
         from: "[Hệ thống trường ĐHBK Hà Nội]<trongquangvu80@gmail.com>",
         to: `${params.student.email}`,
         subject: "Đồ án tốt nghiệp",
@@ -180,9 +161,9 @@ export async function sendMailGoogleUpdateAccount(params: {
     username: string;
     email: string;
 }): Promise<ResultSuccess> {
-    let list = objectToHtmlList(params);
+    const list = objectToHtmlList(params);
 
-    let info = await (
+    await (
         await transport()
     ).sendMail({
         from: "[Hệ thống trường ĐHBK Hà Nội]<trongquangvu80@gmail.com>",
@@ -231,10 +212,12 @@ export async function sendMailGoogleInstruct(params: {
         fullname: string;
         email: string;
     };
-    student:[ {
-        fullname: string;
-        email: string;
-    }];
+    student: [
+        {
+            fullname: string;
+            email: string;
+        }
+    ];
 }): Promise<ResultSuccess> {
     // Đường dẫn URL đến file cần tải
 
@@ -242,7 +225,7 @@ export async function sendMailGoogleInstruct(params: {
 
     const listMailStudent = params.student;
 
-    const sendStudent = await Promise.all(
+    await Promise.all(
         listMailStudent.map(async (e) => {
             return (await transport()).sendMail({
                 from: "[Hệ thống trường ĐHBK Hà Nội]<trongquangvu80@gmail.com>",
@@ -259,7 +242,7 @@ export async function sendMailGoogleInstruct(params: {
         })
     );
 
-    let str: string = "<table>";
+    let str = "<table>";
 
     listMailStudent.map((s) => {
         str += `<tr><td>Sinh viên : ${s.fullname}</td></tr><tr><td>Email : ${s.email}</td></tr>`;
@@ -267,7 +250,7 @@ export async function sendMailGoogleInstruct(params: {
 
     str += "</table>";
 
-    const sendTeacher = (await transport()).sendMail({
+    (await transport()).sendMail({
         from: "[Hệ thống trường ĐHBK Hà Nội]<trongquangvu80@gmail.com>",
         to: `${params.teacher.email}`,
         subject: "Phân công sinh viên cho giáo viên hướng dẫn tốt nghiệp",
@@ -300,7 +283,7 @@ export async function sendMailGoogleReview(params: {
 
     const listMailStudent = params.student;
 
-    const sendStudent = await Promise.all(
+    await Promise.all(
         listMailStudent.map(async (e) => {
             return (await transport()).sendMail({
                 from: "[Hệ thống trường ĐHBK Hà Nội]<trongquangvu80@gmail.com>",
@@ -318,7 +301,7 @@ export async function sendMailGoogleReview(params: {
         })
     );
 
-    let str: string = "<table>";
+    let str = "<table>";
 
     listMailStudent.map((s) => {
         str += `<tr><td>Sinh viên : ${s.fullname}</td> <td>Đề tài : ${s.project}</td> </tr> <td>Email : ${s.email}</td> </tr>`;
@@ -326,7 +309,7 @@ export async function sendMailGoogleReview(params: {
 
     str += "</table>";
 
-    const sendTeacher = (await transport()).sendMail({
+    (await transport()).sendMail({
         from: "[Hệ thống trường ĐHBK Hà Nội]<trongquangvu80@gmail.com>",
         to: `${params.teacher.email}`,
         subject: "Phân công sinh viên cho giáo viên phản biện đồ án tốt nghiệp",

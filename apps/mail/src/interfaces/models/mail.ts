@@ -11,8 +11,7 @@ export interface ITEmail {
 
 interface KeyType {
     [key: string]: string; // Thêm index signature
-  }
-  
+}
 
 export const KEY: KeyType = {
     fullname: "Họ và tên",
