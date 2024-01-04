@@ -1,7 +1,6 @@
 import { error, HttpError, HttpStatus } from "app";
 import axios from "axios";
 import { configs } from "../configs";
-import { FileResBody } from "../interfaces/response";
 
 export async function getDownloadLinks(objectsId: string): Promise<{
     body?: { webContentLink: string; webViewLink: string };

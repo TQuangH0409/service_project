@@ -1,33 +1,13 @@
-import {
-    error,
-    HttpStatus,
-    Result,
-    ResultError,
-    success,
-    // TypeHistory,
-} from "app";
+import { error, HttpStatus, Result, ResultError, success } from "app";
 import bcrypt from "bcrypt";
 import logger from "logger";
 import { configs } from "../configs";
 import { redis } from "../database";
 import { User } from "../models";
 import Account from "../models/account";
-import {
-    verifyAccessCode,
-    // getUserById,
-    sendMailResetPassword,
-    sendMailGoogleForgotPassword,
-    // findDepartmentById,
-    // updateUserActivity,
-} from "../services";
-import {
-    genAccessToken,
-    genRefreshToken,
-    genResetPasswordToken,
-    getPayload,
-} from "../token";
+import { sendMailGoogleForgotPassword } from "../services";
+import { genAccessToken, genRefreshToken, getPayload } from "../token";
 import { getUserByEmail, updateUserActivity } from "./user.controller";
-// import { IDepartmentResBody } from "../interfaces/response";
 
 export async function login(params: {
     email: string;
@@ -45,7 +25,7 @@ export async function login(params: {
                 { _id: 0, activities: 0 }
             ).lean(),
         ]);
-        
+
         if (account && account.password) {
             if (account.failed_login === numberOfTried - 1) {
                 account.last_locked = new Date();
@@ -87,8 +67,13 @@ export async function login(params: {
                     return accountRolesEmpty();
                 }
                 const { id, roles, email } = account;
-                console.log("🚀 ~ file: auth.controller.ts:89 ~ id, roles, email:", id, roles, email)
-                
+                console.log(
+                    "🚀 ~ file: auth.controller.ts:89 ~ id, roles, email:",
+                    id,
+                    roles,
+                    email
+                );
+
                 const accessToken = genAccessToken({
                     id,
                     roles,
@@ -114,16 +99,6 @@ export async function login(params: {
                     }),
                     account.save(),
                 ]);
-                // eventKafka({
-                //     event_data: data as object,
-                //     topic: "auth",
-                //     module: "auth",
-                //     action: params.email,
-                //     type: TypeHistory.LOGIN,
-                //     broker: [configs.kafka.broker as string],
-                //     username: configs.kafka.username as string,
-                //     password: configs.kafka.password as string,
-                // });
                 return success.ok(data);
             } else {
                 account.failed_login += 1;
@@ -138,73 +113,6 @@ export async function login(params: {
         throw err;
     }
 }
-
-// export async function loginWithAccessCode(accessCode: string): Promise<Result> {
-//     const response = await verifyAccessCode({ accessCode });
-//     if (response.body) {
-//         const [account, user] = await Promise.all([
-//             Account.findOne(
-//                 {
-//                     email: {
-//                         $regex: `^${response.body.email}$`,
-//                         $options: "i",
-//                     },
-//                 },
-//                 { created_time: 0 }
-//             ),
-//             User.findOne(
-//                 {
-//                     email: {
-//                         $regex: `^${response.body.email}$`,
-//                         $options: "i",
-//                     },
-//                 },
-//                 { _id: 0, activities: 0 }
-//             ).lean(),
-//         ]);
-//         if (account) {
-//             const isActive = account?.is_active;
-//             if (!isActive) {
-//                 return accountInactiveError();
-//             }
-//             if (account.roles.length === 0) {
-//                 return accountRolesEmpty();
-//             }
-//             const { id, roles, email } = account;
-
-//             const accessToken = genAccessToken({
-//                 id,
-//                 roles,
-//                 email,
-//             });
-//             const refreshToken = genRefreshToken(id);
-//             const data = {
-//                 ...{
-//                     ...user,
-//                     _id: undefined,
-//                 },
-//                 accessToken: accessToken.token,
-//                 refreshToken: refreshToken.token,
-//                 roles: account.roles,
-//                 activities: undefined,
-//             };
-//             account.failed_login = 0;
-//             await Promise.all([
-//                 saveTokenSignature({
-//                     userId: id,
-//                     token: accessToken.token,
-//                     expireAt: accessToken.expireAt,
-//                 }),
-//                 account.save(),
-//             ]);
-//             return success.ok(data);
-//         } else {
-//             return accountNotFoundError();
-//         }
-//     } else {
-//         return wrongPasswordError();
-//     }
-// }
 
 export async function newToken(refreshToken: string): Promise<Result> {
     const payload = getPayload(refreshToken);

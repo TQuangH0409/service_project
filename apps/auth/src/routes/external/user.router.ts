@@ -8,14 +8,10 @@ import {
     importUser,
     updateUser,
 } from "../../controllers";
-import {
-    ImportUserReqBody,
-} from "../../interfaces/request";
+import { ImportUserReqBody } from "../../interfaces/request";
 import { FindReqQuery } from "../../interfaces/request";
 import { verifyRole } from "../../middlewares";
-import {
-    findUserValidator,
-} from "../../validator";
+import { findUserValidator } from "../../validator";
 
 export const router: Router = Router();
 

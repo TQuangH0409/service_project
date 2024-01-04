@@ -20,7 +20,6 @@ import {
     setPasswordValidator,
     updatePasswordValidator,
     checkAccountValidator,
-    loginWithCodeValidator,
 } from "../../validator";
 
 export const router: Router = Router();

@@ -27,7 +27,6 @@ import {
     checkResearchAreasExits,
     getResearchAreaByNumber,
 } from "../services/research_area.service";
-import { check } from "express-validator";
 import { getProjectsByStudent } from "../services/project.service";
 
 export async function createUser(params: {
@@ -345,7 +344,7 @@ export async function getUserById(params: {
         Account.findOne({ id: params.id }, { _id: 0 }),
     ]);
 
-    let research_area: { [key: string]: string | number | undefined }[] = [];
+    const research_area: { [key: string]: string | number | undefined }[] = [];
 
     if (user && account) {
         if (user.research_area) {
@@ -687,7 +686,7 @@ export async function getAllUserByPosition(params: {
         degree: 1,
     }).then((res) => {
         const result = res.map(async (u) => {
-            let research_area: {
+            const research_area: {
                 [key: string]: string | number | undefined;
             }[] = [];
 
@@ -708,7 +707,7 @@ export async function getAllUserByPosition(params: {
                         }
                     });
                 } else {
-                    const ra = u.research_area.map((r, idx) =>
+                    u.research_area.map((r) =>
                         research_area.push({
                             number: r.number,
                             experience: r.experience,

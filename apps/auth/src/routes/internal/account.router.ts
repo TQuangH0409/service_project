@@ -1,11 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
-import {
-    getIdByEmail,
-    getRoleById,
-} from "../../controllers";
+import { getIdByEmail, getRoleById } from "../../controllers";
 
 export const router: Router = Router();
-
 
 router.get(
     "/get-roles-by-id/:id",
