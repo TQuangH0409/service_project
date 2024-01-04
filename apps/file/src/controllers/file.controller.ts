@@ -7,20 +7,9 @@ import {
     success,
 } from "app";
 import File from "../models/file";
-import * as crypto from "crypto";
 import { google } from "googleapis";
 import { configs } from "../configs";
-import { v1 } from "uuid";
-import fs from "fs";
 import { PassThrough } from "stream";
-import { Stream } from "stream";
-import { IFile } from "../interfaces/models/file";
-const path = require("path");
-
-function generateObjectName(): string {
-    const randomString = crypto.randomBytes(8).toString("hex");
-    return `${v1()}-${randomString}`;
-}
 
 const oauth2Client = new google.auth.OAuth2(
     configs.googleapis.client_id,
@@ -31,8 +20,6 @@ const oauth2Client = new google.auth.OAuth2(
 oauth2Client.setCredentials({
     refresh_token: configs.googleapis.client_refresh_token,
 });
-
-
 
 // const accessToken = await oAuth2Client.getAccessToken();
 
@@ -168,7 +155,9 @@ export async function getInfoFile(params: {
     return success.ok(response.data);
 }
 
-export async function getFileByIdInDB(params: { id: string }) {
+export async function getFileByIdInDB(params: {
+    id: string;
+}): Promise<ResultSuccess> {
     const check = await File.findOne({ objectId: params.id }, { _id: 0 });
 
     if (!check) {

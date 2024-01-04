@@ -1,7 +1,5 @@
-import { HttpError, HttpStatus, Payload, ResultError } from "app";
+import { HttpError, HttpStatus, ResultError } from "app";
 import express, { NextFunction, Request, Response } from "express";
-// import { createLinkUpload } from "../../controllers/file.controller";
-import { createLinkValidator } from "../../validator";
 import {
     getFileByIdInDB,
     getInfoFile,
@@ -9,14 +7,12 @@ import {
     uploadFile,
 } from "../../controllers/file.controller";
 import multer from "multer";
-import { Stream } from "stream";
 
 export const router = express.Router();
 
 router.post(
     "/upload-file/",
     multer({
-        
         storage: multer.memoryStorage(), // Lưu trữ dưới dạng buffer
     }).single("file"),
     async (req: Request, _: Response, next: NextFunction) => {

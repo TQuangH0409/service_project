@@ -1,6 +1,4 @@
 import express, { NextFunction, Request, Response } from "express";
-
-import { getLinkValidator } from "../../validator";
 import multer from "multer";
 import { HttpError, HttpStatus, ResultError } from "app";
 import {
@@ -67,4 +65,3 @@ router.get(
         next(result);
     }
 );
-

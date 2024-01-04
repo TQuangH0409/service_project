@@ -1,5 +1,4 @@
 import { parse, find } from "abstract-syntax-tree";
-import logger from "logger";
 import { Any } from "utils";
 
 export class AST {
@@ -64,7 +63,7 @@ export class AST {
                 return this.make(node.expression);
             }
             default: {
-                throw new Error(`make Not supported! ${node.type}`)
+                throw new Error(`make Not supported! ${node.type}`);
             }
         }
     }
@@ -116,20 +115,23 @@ export class AST {
         const objectType = node.object?.type;
         if (objectType === "Identifier") {
             if (node.object && node.object.name) {
-                temp = node.object.name in values
-                    ? values[node.object?.name]
-                    : undefined
+                temp =
+                    node.object.name in values
+                        ? values[node.object?.name]
+                        : undefined;
             }
         } else if (objectType === "MemberExpression") {
             const childNode = node.object;
             temp = this.getRealValueMember(childNode, values);
         } else {
-            throw new Error(`getRealValueMember Not supported! objectType =  ${objectType}`)
+            throw new Error(
+                `getRealValueMember Not supported! objectType =  ${objectType}`
+            );
         }
         if (temp && propName in temp) {
-            return temp[propName]
+            return temp[propName];
         } else {
-            return temp
+            return temp;
         }
     }
     makeBinary(node: Any): boolean {
@@ -188,9 +190,9 @@ export class AST {
             case "!=": {
                 let reason = `Trường ${field?.name ?? leftString}`;
                 if (rightString == null || rightString == undefined) {
-                    reason = `${reason} không được bỏ trống.`
+                    reason = `${reason} không được bỏ trống.`;
                 } else {
-                    reason = `${reason} không được bằng ${rightString}.`
+                    reason = `${reason} không được bằng ${rightString}.`;
                 }
                 return reason;
             }
@@ -207,9 +209,9 @@ export class AST {
         if (node.type === "MemberExpression") {
             const path = this.getValuePath(node);
             if (path) {
-                return path
+                return path;
             } else {
-                throw new Error("AST syntax error")
+                throw new Error("AST syntax error");
             }
         } else if (node.type === "Literal") {
             return node.value;
@@ -224,9 +226,9 @@ export class AST {
                 const objectPath = this.getValuePath(node.object);
                 const propertyName = this.getValuePath(node.property);
                 if (!objectPath || !propertyName) {
-                    throw new Error("AST syntax error")
+                    throw new Error("AST syntax error");
                 }
-                return `${objectPath}.${propertyName}`
+                return `${objectPath}.${propertyName}`;
             }
             case "Identifier": {
                 return node.name ? node.name : undefined;
@@ -238,14 +240,15 @@ export class AST {
     }
 }
 
-
 const conditionalFields = [
     {
         path: "resolution.solution.content",
-        name: "giải pháp"
-    }
-]
+        name: "giải pháp",
+    },
+];
 
-function getConditionalField(path: string): (typeof conditionalFields)[0] | undefined {
-    return conditionalFields.find(f => f.path === path)
+function getConditionalField(
+    path: string
+): typeof conditionalFields[0] | undefined {
+    return conditionalFields.find((f) => f.path === path);
 }

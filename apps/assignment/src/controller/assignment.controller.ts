@@ -1,23 +1,13 @@
-import { HttpError, HttpStatus, ResultSuccess, error, success } from "app";
+import { HttpError, ResultSuccess, error, success } from "app";
 import { ClientSession } from "mongoose";
-import { _getUserById, checkUserExits } from "../services/user.service";
+import { _getUserById } from "../services/user.service";
 import Assignment from "../models/assignment";
 import {
     getProjectById,
     getProjectByStudent,
 } from "../services/project.service";
-import { ETYPE, IUserAss } from "../interfaces/models/assignment";
+import { ETYPE } from "../interfaces/models/assignment";
 import { getResearchAreaByNumber } from "../services/research_area.service";
-
-export async function createAssignment(params: {
-    type: string;
-    student: string;
-    teacher: string;
-    project: string;
-    session: ClientSession;
-}): Promise<ResultSuccess> {
-    return success.ok({});
-}
 
 export async function getAssignment(params: {
     student?: string;

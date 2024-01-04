@@ -63,7 +63,7 @@ const ast = new AST(source, "Root");
 
 try {
     const status = ast.value(value);
-    const reason = ast.getReason()
+    const reason = ast.getReason();
 
     console.log(ast.toString());
     console.log("Status: %o", status);

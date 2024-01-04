@@ -1,7 +1,6 @@
 import { HttpError, HttpStatus, ResultSuccess, success } from "app";
 import {
     ETYPE,
-    ETYPEARRAY,
     IAssignment,
 } from "../interfaces/models/assignment";
 import { getAllProjects } from "../services/project.service";
@@ -13,8 +12,6 @@ import { IArray_Assignment } from "../interfaces/response/assignment.body";
 import { IUser } from "../interfaces/response/user.body";
 import Assignment from "../models/assignment";
 import { sendMailGoogleInstruct } from "../services";
-
-export async function handle(params: { limit: number; type: ETYPE }) {}
 
 export async function handleReview(params: {
     semester: string;
@@ -215,7 +212,7 @@ export async function handleReview(params: {
     if (params.type !== "DRAFT") {
         await Assignment.create(assignments);
 
-        
+
     }
 
     const result: IArray_Assignment = {
@@ -411,7 +408,6 @@ export async function handleInstruct(params: {
     students.body.forEach((s: IUser, idx) => {
         const temp = assignTheProjectToTheTeacher(
             idx,
-            // p.teacher_instruct_id,
             header.length,
             limit,
             s.fullname
@@ -756,13 +752,5 @@ export async function getArraySpecializeStudent(params: {
         array.push(row);
         array2.push(row2);
     });
-
-    // await Array.create(
-    //     new Array({
-    //         id: ETYPEARRAY.S_T,
-    //         array: array2,
-    //     })
-    // );
-
     return success.ok(array2);
 }
