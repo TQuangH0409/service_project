@@ -50,6 +50,14 @@ router.delete(
 );
 
 router.get(
+    "/data-source",
+    async (req: Request, _: Response, next: NextFunction) => {
+        const result = await getAllResearchAreas();
+        next(result);
+    }
+);
+
+router.get(
     "/",
     verifyRole("SA", "T", "S"),
     findReaserchAreaValidator(),
@@ -69,8 +77,3 @@ router.get(
         next(result);
     }
 );
-
-router.get("/data-source", async (req: Request, _: Response, next: NextFunction) => {
-    const result = await getAllResearchAreas();
-    next(result);
-});
