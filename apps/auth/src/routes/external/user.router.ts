@@ -10,7 +10,6 @@ import {
 } from "../../controllers";
 import {
     ImportUserReqBody,
-    UpdateUserReqBody,
 } from "../../interfaces/request";
 import { FindReqQuery } from "../../interfaces/request";
 import { verifyRole } from "../../middlewares";
@@ -118,7 +117,7 @@ router.put(
     "/:userId",
     verifyRole("SA", "T", "S"),
     async (req: Request, _: Response, next: NextFunction) => {
-        const body: UpdateUserReqBody = req.body;
+        const body = req.body;
         const payload = req.payload as Payload;
         const userId = req.params.userId as string;
         const result = await updateUser({

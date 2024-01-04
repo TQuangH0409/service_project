@@ -199,7 +199,7 @@ export async function getAssBySemester(params: {
         let ra = await Promise.all(
             teacher.research_area.map((r) => getResearchAreaByNumber(r.number))
         );
-
+ 
         let reseach_areas = ra.map((r, idx) => {
             if (r.body) {
                 return {

@@ -16,6 +16,7 @@ export const router = express.Router();
 router.post(
     "/upload-file/",
     multer({
+        
         storage: multer.memoryStorage(), // Lưu trữ dưới dạng buffer
     }).single("file"),
     async (req: Request, _: Response, next: NextFunction) => {

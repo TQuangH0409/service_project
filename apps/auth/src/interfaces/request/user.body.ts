@@ -26,15 +26,6 @@ export interface FindUserReqBody {
     last_time_ticket: Date;
 }
 
-export interface UpdateUserReqBody {
-    fullname?: string;
-    number: string;
-    phone?: string;
-    roles?: string[];
-    position?: string;
-    is_active?: boolean;
-}
-
 export interface UserImport {
     index: number;
     email: string;
