@@ -19,11 +19,13 @@ export async function checkProjectExits(params: {
     }
 }
 
-export async function getAllProjects(): Promise<{
+export async function getAllProjects(params: { semester: string }): Promise<{
     body?: IProject[];
     status?: number;
 }> {
-    const url = `${configs.services.project.getUrl()}/`;
+    const url = `${configs.services.project.getUrl()}/?semester=${
+        params.semester
+    }`;
     try {
         const res = await axios.get<IProject[]>(`${url}`);
         return { body: res.data };
@@ -51,7 +53,6 @@ export async function getProjectByStudent(student: string): Promise<{
         }
     }
 }
-
 
 export async function getProjectById(params: {
     id: string;

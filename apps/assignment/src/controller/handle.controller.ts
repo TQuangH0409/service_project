@@ -25,12 +25,13 @@ export async function handleReview(params: {
     const header: string[] = [];
 
     const teachers = await getAllUserByPosition({ position: "TEACHER" });
-    const projects = await getAllProjects();
+    const projects = await getAllProjects({ semester: params.semester });
     const listProject: IProject[] = [];
 
     const assignments: IAssignment[] = [];
-    const arrayT_P: (number | string)[][] = (await getArrayTeacherProject())
-        .data;
+    const arrayT_P: (number | string)[][] = (
+        await getArrayTeacherProject({ semester: params.semester })
+    ).data;
 
     if (!(projects && projects.body)) {
         throw new HttpError({
@@ -434,9 +435,11 @@ export async function handleInstruct(params: {
 }
 
 // thiết lập array project - specialize
-export async function getArraySpecializeProject(): Promise<ResultSuccess> {
+export async function getArraySpecializeProject(params: {
+    semester: string;
+}): Promise<ResultSuccess> {
     const array: number[][] = [];
-    const projects = await getAllProjects();
+    const projects = await getAllProjects({ semester: params.semester });
     const reseach_areas = await getAllResearchAreas();
     if (!(projects && projects.body)) {
         throw new HttpError({
@@ -555,8 +558,12 @@ export async function getArraySpecializeTeacher(): Promise<ResultSuccess> {
 }
 
 // thiet lap array teacher - project
-export async function getArrayTeacherProject(): Promise<ResultSuccess> {
-    const projects: number[][] = (await getArraySpecializeProject()).data;
+export async function getArrayTeacherProject(params: {
+    semester: string;
+}): Promise<ResultSuccess> {
+    const projects: number[][] = (
+        await getArraySpecializeProject({ semester: params.semester })
+    ).data;
     const teachers: number[][] = (await getArraySpecializeTeacher()).data;
 
     function sum(p: number[], t: number[]): number {

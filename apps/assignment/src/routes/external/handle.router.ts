@@ -29,7 +29,8 @@ router.get("/S-T", async (req: Request, _: Response, next: NextFunction) => {
 });
 
 router.get("/S-P", async (req: Request, _: Response, next: NextFunction) => {
-    const result = await getArraySpecializeProject();
+    const semester = req.query.semester as string;
+    const result = await getArraySpecializeProject({ semester: semester });
 
     next(result);
 });
@@ -42,7 +43,8 @@ router.get("/T-St", async (req: Request, _: Response, next: NextFunction) => {
 });
 
 router.get("/T-P", async (req: Request, _: Response, next: NextFunction) => {
-    const result = await getArrayTeacherProject();
+    const semester = req.query.semester as string;
+    const result = await getArrayTeacherProject({ semester: semester });
 
     next(result);
 });

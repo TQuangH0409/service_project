@@ -8,8 +8,8 @@ import {
 export const router = express.Router();
 
 router.get("/", async (req: Request, _: Response, next: NextFunction) => {
-    const id = req.params.id as unknown as string;
-    const result = await getAllProjects();
+    const semester = req.query.semester as unknown as string;
+    const result = await getAllProjects({ semester: semester });
     next(result);
 });
 

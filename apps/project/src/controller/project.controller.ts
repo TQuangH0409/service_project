@@ -350,12 +350,14 @@ export async function getProjectById(params: {
             const ra = res.research_area.map((r) => getResearchAreaByNumber(r));
 
             const r = await Promise.all(ra);
-            r.forEach((e, idx) =>
-                research_area.push({
-                    name: e.body!.name,
-                    number: e.body!.number,
-                })
-            );
+            r.forEach((e, idx) => {
+                if (e.body) {
+                    research_area.push({
+                        name: e.body.name,
+                        number: e.body.number,
+                    });
+                }
+            });
 
             Object.assign(result, {
                 research_area: research_area,
@@ -645,19 +647,25 @@ export async function checkProjectExits(params: {
     return success.ok(check);
 }
 
-export async function getAllProjects(): Promise<ResultSuccess> {
-    const projects = await Project.find(
-        { is_active: true },
-        {
-            _id: 0,
-            id: 1,
-            name: 1,
-            student_id: 1,
-            teacher_instruct_id: 1,
-            teacher_review_id: 1,
-            research_area: 1,
-        }
-    ).lean();
+export async function getAllProjects(params: {
+    semester?: string;
+}): Promise<ResultSuccess> {
+    let filter = params.semester
+        ? { is_active: true, semester: params.semester }
+        : { is_active: true };
+
+    console.log("🚀 ~ file: project.controller.ts:654 ~ filter:", filter);
+
+    const projects = await Project.find(filter, {
+        _id: 0,
+        id: 1,
+        name: 1,
+        semester: 1,
+        student_id: 1,
+        teacher_instruct_id: 1,
+        teacher_review_id: 1,
+        research_area: 1,
+    }).lean();
 
     return success.ok(projects);
 }
