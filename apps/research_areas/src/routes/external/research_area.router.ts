@@ -4,6 +4,7 @@ import {
     createdResearchArea,
     deleteResearchArea,
     findResearchArea,
+    getAllResearchAreas,
     getResearchAreaById,
     updateResearchArea,
 } from "../../controllers/research_area.controller";
@@ -68,3 +69,8 @@ router.get(
         next(result);
     }
 );
+
+router.get("/data-source", async (req: Request, _: Response, next: NextFunction) => {
+    const result = await getAllResearchAreas();
+    next(result);
+});
