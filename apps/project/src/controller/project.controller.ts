@@ -264,15 +264,17 @@ export async function getProjectById(params: {
                     );
 
                     const r = await Promise.all(ra);
-                    r.forEach((e, idx) =>
-                        research_area.push({
-                            name: e.body!.name,
-                            number: e.body!.number,
-                            experience:
-                                teacher_review.body!.research_area![idx]
-                                    .experience,
-                        })
-                    );
+                    r.forEach((e, idx) => {
+                        if (e) {
+                            research_area.push({
+                                name: e.body!.name,
+                                number: e.body!.number,
+                                experience:
+                                    teacher_review.body!.research_area![idx]
+                                        .experience,
+                            });
+                        }
+                    });
 
                     Object.assign(teacher_review.body, {
                         research_area: research_area,

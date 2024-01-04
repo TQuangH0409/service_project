@@ -3,14 +3,17 @@ import axios from "axios";
 import { configs } from "../configs";
 import { FileResBody } from "../interfaces/response";
 
-export async function getDownloadLinks(objects: string[]): Promise<{
-    body?: FileResBody[];
+export async function getDownloadLinks(objectsId: string): Promise<{
+    body?: { webContentLink: string; webViewLink: string };
     status?: HttpStatus;
     path: string;
 }> {
-    const url = `${configs.services.file.getUrl()}/download-links`;
+    const url = `${configs.services.file.getUrl()}/`;
     try {
-        const res = await axios.post<FileResBody[]>(`${url}`, objects);
+        const res = await axios.get<{
+            webContentLink: string;
+            webViewLink: string;
+        }>(`${url}`);
         return { body: res.data, path: url, status: res.status };
     } catch (e) {
         if (axios.isAxiosError(e) && e.response?.status) {

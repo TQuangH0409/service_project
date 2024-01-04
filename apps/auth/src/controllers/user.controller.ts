@@ -50,8 +50,8 @@ export async function createUser(params: {
     userRoles: string[];
     userId: string;
 }): Promise<Result> {
-    console.log("🚀 ~ file: user.controller.ts:34 ~ params:", params)
-    
+    console.log("🚀 ~ file: user.controller.ts:34 ~ params:", params);
+
     if (!params.userRoles.includes("SA")) {
         if (params.roles?.includes("SA")) {
             return error.actionNotAllowed();
@@ -354,13 +354,15 @@ export async function getUserById(params: {
             );
 
             const r = await Promise.all(ra);
-            r.forEach((e, idx) =>
-                research_area.push({
-                    name: e.body!.name,
-                    number: e.body!.number,
-                    experience: user.research_area![idx].experience,
-                })
-            );
+            r.forEach((e, idx) => {
+                if (e.body) {
+                    research_area.push({
+                        name: e.body.name,
+                        number: e.body.number,
+                        experience: user.research_area![idx].experience,
+                    });
+                }
+            });
         }
 
         let teacher_instruct = undefined;
@@ -404,6 +406,11 @@ export async function getUserById(params: {
             }
         }
 
+        let avatar;
+        if (user.avatar) {
+            avatar = (await getDownloadLinks(user.avatar)).body?.webContentLink;
+        }
+
         const data = {
             ...user.toObject(),
             roles: account?.roles,
@@ -411,6 +418,7 @@ export async function getUserById(params: {
             teacher_review: teacher_review ? teacher_review : undefined,
             research_area: research_area,
             project: projectId,
+            avatar: avatar,
         };
         return success.ok(data);
     }
@@ -649,16 +657,6 @@ async function validateImportData(params: {
                 en: "File data is not valid",
             },
         });
-    }
-}
-
-export async function getTemplateUrl(): Promise<Result> {
-    const object = "ServiceDeskMBFDT_Template_ImportEndUser_SuperAdmin.xlsx";
-    const response = await getDownloadLinks([object]);
-    if (response.status === HttpStatus.OK && response.body) {
-        return success.ok({ link: response.body[0].link });
-    } else {
-        return error.notFound({ message: "template object is not configured" });
     }
 }
 

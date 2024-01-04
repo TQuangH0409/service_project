@@ -7,6 +7,7 @@ import {
     getProjectByStudent,
 } from "../services/project.service";
 import { ETYPE, IUserAss } from "../interfaces/models/assignment";
+import { getResearchAreaByNumber } from "../services/research_area.service";
 
 export async function createAssignment(params: {
     type: string;
@@ -60,6 +61,25 @@ export async function getAssignment(params: {
     let temp = ass.toJSON();
 
     if (params.teacher && ass.student && params.type === ETYPE.INSTRUCT) {
+        let teacher = temp.teacher;
+
+        let ra = await Promise.all(
+            teacher.research_area.map((r) => getResearchAreaByNumber(r.number))
+        );
+
+        let reseach_areas = ra.map((r, idx) => {
+            if (r.body) {
+                return {
+                    ...r.body,
+                    experience: teacher.research_area[idx].experience,
+                };
+            }
+        });
+
+        Object.assign(teacher, {
+            reseach_areas: reseach_areas,
+        });
+
         const project = ass.student.map((s) => {
             return getProjectByStudent(s.id);
         });
@@ -82,7 +102,8 @@ export async function getAssignment(params: {
         temp = Object.assign(
             { ...temp },
             { students: students },
-            { student: undefined }
+            { student: undefined },
+            { teacher: teacher }
         );
     }
 
