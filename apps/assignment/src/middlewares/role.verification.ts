@@ -19,7 +19,6 @@ export function verifySystemAdmin(
     }
 }
 
-
 export function verifyRole(...roles: string[]): RequestHandler {
     if (roles.includes("*")) {
         roles.push("SA", "T", "S");

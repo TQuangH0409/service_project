@@ -5,6 +5,6 @@ import { IUser } from "./user.body";
 export interface IArray_Assignment {
     array?: (number | string)[][];
     assignment?: IAssignment[];
-    listStudent?: IUser[]
-    listProject?: IProject[]
+    listStudent?: IUser[];
+    listProject?: IProject[];
 }

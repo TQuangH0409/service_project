@@ -5,7 +5,7 @@ export interface IUser {
     email: string;
     position: string;
     research_area: IResearchAreaT[];
-    school: string
+    school: string;
 }
 
 export interface IResearchAreaT {

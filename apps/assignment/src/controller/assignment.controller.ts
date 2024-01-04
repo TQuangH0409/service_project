@@ -1,5 +1,4 @@
 import { HttpError, ResultSuccess, error, success } from "app";
-import { ClientSession } from "mongoose";
 import { _getUserById } from "../services/user.service";
 import Assignment from "../models/assignment";
 import {
@@ -51,13 +50,13 @@ export async function getAssignment(params: {
     let temp = ass.toJSON();
 
     if (params.teacher && ass.student && params.type === ETYPE.INSTRUCT) {
-        let teacher = temp.teacher;
+        const teacher = temp.teacher;
 
-        let ra = await Promise.all(
+        const ra = await Promise.all(
             teacher.research_area.map((r) => getResearchAreaByNumber(r.number))
         );
 
-        let reseach_areas = ra.map((r, idx) => {
+        const reseach_areas = ra.map((r, idx) => {
             if (r.body) {
                 return {
                     ...r.body,
@@ -178,19 +177,19 @@ export async function getAssBySemester(params: {
     });
 
     if (!ass) {
-      return success.ok([])
+        return success.ok([]);
     }
 
     let temp = ass.toJSON();
 
     if (ass.student && params.type === ETYPE.INSTRUCT) {
-        let teacher = temp.teacher;
+        const teacher = temp.teacher;
 
-        let ra = await Promise.all(
+        const ra = await Promise.all(
             teacher.research_area.map((r) => getResearchAreaByNumber(r.number))
         );
- 
-        let reseach_areas = ra.map((r, idx) => {
+
+        const reseach_areas = ra.map((r, idx) => {
             if (r.body) {
                 return {
                     ...r.body,
@@ -276,5 +275,4 @@ export async function getAssBySemester(params: {
     }
 
     return success.ok(temp);
-
 }

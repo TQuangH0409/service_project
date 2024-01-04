@@ -1,4 +1,4 @@
-import { HttpError, ResultSuccess, error } from "app";
+import { HttpError, error } from "app";
 import { configs } from "../configs";
 import axios from "axios";
 import { IResearchArea } from "../interfaces/response/research_area.body";

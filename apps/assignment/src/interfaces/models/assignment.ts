@@ -1,4 +1,4 @@
-import { IResearchAreaT, IUser } from "../response/user.body";
+import { IResearchAreaT } from "../response/user.body";
 
 export interface IAssignment {
     id: string;

@@ -1,8 +1,5 @@
 import { HttpError, HttpStatus, ResultSuccess, success } from "app";
-import {
-    ETYPE,
-    IAssignment,
-} from "../interfaces/models/assignment";
+import { ETYPE, IAssignment } from "../interfaces/models/assignment";
 import { getAllProjects } from "../services/project.service";
 import { getAllResearchAreas } from "../services/research_area.service";
 import { getAllUserByPosition } from "../services/user.service";
@@ -211,8 +208,6 @@ export async function handleReview(params: {
 
     if (params.type !== "DRAFT") {
         await Assignment.create(assignments);
-
-
     }
 
     const result: IArray_Assignment = {
@@ -658,7 +653,6 @@ export async function getArrayTeacherStudent(params: {
         return total;
     }
 
-    const array: number[][] = [];
     const header: string[] = [];
     const array2: (number | string)[][] = [];
 

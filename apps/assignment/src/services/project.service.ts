@@ -1,4 +1,4 @@
-import { HttpError, Result, ResultSuccess, error } from "app";
+import { HttpError, ResultSuccess, error } from "app";
 import { configs } from "../configs";
 import axios from "axios";
 import { IProject } from "../interfaces/response/project.body";
