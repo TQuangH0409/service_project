@@ -8,7 +8,7 @@ export async function getDownloadLinks(objectsId: string): Promise<{
     status?: HttpStatus;
     path: string;
 }> {
-    const url = `${configs.services.file.getUrl()}/`;
+    const url = `${configs.services.file.getUrl()}/${objectsId}`;
     try {
         const res = await axios.get<{
             webContentLink: string;
