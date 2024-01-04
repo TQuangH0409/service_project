@@ -66,7 +66,7 @@ const assignmentSchema = new mongoose.Schema(
                         _id: false,
                     },
                     school: {
-                        type: Number,
+                        type: String,
                         required: false,
                     },
                     coincidence: {
@@ -122,7 +122,7 @@ const assignmentSchema = new mongoose.Schema(
                     _id: false,
                 },
                 school: {
-                    type: Number,
+                    type: String,
                     required: false,
                 },
                 coincidence: {
