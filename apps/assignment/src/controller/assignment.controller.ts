@@ -171,7 +171,7 @@ export async function getAssBySemester(params: {
     semester: string;
     type: string;
 }): Promise<ResultSuccess> {
-    const ass = await Assignment.findOne({
+    const ass = await Assignment.find({
         semester: params.semester,
         type: params.type,
     });
@@ -180,99 +180,108 @@ export async function getAssBySemester(params: {
         return success.ok([]);
     }
 
-    let temp = ass.toJSON();
+    let temp = ass.map((t) => t.toJSON());
 
-    if (ass.student && params.type === ETYPE.INSTRUCT) {
-        const teacher = temp.teacher;
+    let result = [];
+    if (params.type === ETYPE.INSTRUCT) {
+        for (let t of temp) {
+            const teacher = t.teacher;
 
-        const ra = await Promise.all(
-            teacher.research_area.map((r) => getResearchAreaByNumber(r.number))
-        );
+            const ra = await Promise.all(
+                teacher.research_area.map((r) =>
+                    getResearchAreaByNumber(r.number)
+                )
+            );
 
-        const reseach_areas = ra.map((r, idx) => {
-            if (r.body) {
-                return {
-                    ...r.body,
-                    experience: teacher.research_area[idx].experience,
-                };
-            }
-        });
+            const reseach_areas = ra.map((r, idx) => {
+                if (r.body) {
+                    return {
+                        ...r.body,
+                        experience: teacher.research_area[idx].experience,
+                    };
+                }
+            });
 
-        Object.assign(teacher, {
-            reseach_areas: reseach_areas,
-        });
+            Object.assign(teacher, {
+                research_area: reseach_areas,
+            });
 
-        const project = ass.student.map((s) => {
-            return getProjectByStudent(s.id);
-        });
+            const project = t.student.map((s) => {
+                return getProjectByStudent(s.id);
+            });
 
-        const result = await Promise.all(project);
+            const p = await Promise.all(project);
 
-        const students = ass.toJSON().student.map((s, i) => {
-            if (s.id === result[i].body?.student_id) {
-                const p = result[i].body;
+            const students = t.student.map((s, i) => {
+                if (s.id === p[i].body?.student_id) {
+                    const pi = p[i].body;
+                    return {
+                        ...s,
+                        project: pi,
+                    };
+                }
                 return {
                     ...s,
-                    project: p,
                 };
-            }
-            return {
-                ...s,
-            };
-        });
-
-        temp = Object.assign(
-            { ...temp },
-            { students: students },
-            { student: undefined },
-            { teacher: teacher }
-        );
+            });
+            const ru = Object.assign(
+                { ...t },
+                { students: students },
+                { student: undefined },
+                { teacher: teacher }
+            );
+            result.push(ru);
+        }
     }
 
-    if (ass.project && params.type === ETYPE.REVIEW) {
-        const project = ass.project.map((p) => {
-            return getProjectById({ id: p.id });
-        });
+    if (params.type === ETYPE.REVIEW) {
+        for (let t of temp) {
+            const project = t.project.map((p) => {
+                return getProjectById({ id: p.id });
+            });
 
-        const result = await Promise.all(project);
+            const p = await Promise.all(project);
 
-        let projects = ass.toJSON().project.map((p, i) => {
-            const pT = result[i].body;
-            return {
-                ...pT,
-                coincidence: p.coincidence,
-            };
-        });
-
-        projects = await Promise.all(
-            projects.map(async (p) => {
-                const studentRes = await _getUserById({
-                    userId: p.student_id || "",
-                });
-                const teacherRes = await _getUserById({
-                    userId: p.teacher_instruct_id || "",
-                });
-
-                const student = studentRes.body;
-                const teacher = teacherRes.body;
-
+            let projects = t.project.map((pi, i) => {
+                const pT = p[i].body;
                 return {
-                    ...p,
-                    coincidence: p.coincidence,
-                    student: student,
-                    teacher: teacher,
-                    student_id: undefined,
-                    teacher_instruct_id: undefined,
+                    ...pT,
+                    coincidence: pi.coincidence,
                 };
-            })
-        );
+            });
 
-        temp = Object.assign(
-            { ...temp },
-            { projects: projects },
-            { project: undefined }
-        );
+            projects = await Promise.all(
+                projects.map(async (p) => {
+                    const studentRes = await _getUserById({
+                        userId: p.student_id || "",
+                    });
+                    const teacherRes = await _getUserById({
+                        userId: p.teacher_instruct_id || "",
+                    });
+
+                    const student = studentRes.body;
+                    const teacher = teacherRes.body;
+
+                    return {
+                        ...p,
+                        coincidence: p.coincidence,
+                        student: student,
+                        teacher: teacher,
+                        student_id: undefined,
+                        teacher_instruct_id: undefined,
+                    };
+                })
+            );
+
+            const ru = Object.assign(
+                { ...t },
+                { projects: projects },
+                { project: undefined }
+            );
+
+            result.push(ru);
+        }
     }
 
-    return success.ok(temp);
+    return success.ok({ assignment: result });
 }
