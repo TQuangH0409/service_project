@@ -14,6 +14,10 @@ const assignmentSchema = new mongoose.Schema(
             require: true,
             enum: ETYPE,
         },
+        semester: {
+            type: String,
+            require: true,
+        },
         student: {
             type: [
                 {

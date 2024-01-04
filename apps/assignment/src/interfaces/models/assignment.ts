@@ -3,6 +3,7 @@ import { IResearchAreaT, IUser } from "../response/user.body";
 export interface IAssignment {
     id: string;
     type: ETYPE;
+    semester: string;
     student: IUserAss[];
     teacher: IUserAss;
     project: IProjectAss[];
@@ -26,7 +27,7 @@ export interface IUserAss {
     email: string;
     position: string;
     research_area: IResearchAreaT[];
-    school: string
+    school: string;
     coincidence?: number;
 }
 
@@ -45,5 +46,5 @@ export enum ETYPEARRAY {
     S_St = "S_St",
     T_St = "T_St",
     T_P = "T_P",
-    S_P = "S_P"
+    S_P = "S_P",
 }
