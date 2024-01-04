@@ -28,6 +28,7 @@ export async function createdProject(params: {
         content?: string;
         attach?: string;
     };
+    semester?: string;
     research_area: string[];
     userId: string;
 }): Promise<ResultSuccess> {
@@ -126,6 +127,7 @@ export async function createdProject(params: {
             attach: params.discription?.attach,
         },
         research_area: params.research_area,
+        semester: params.semester,
         created_time: new Date(),
         created_by: params.userId,
     });
@@ -166,6 +168,7 @@ export async function updateProject(params: {
     research_area: String[];
     report?: string[];
     source_code?: string;
+    semester?: string;
     rate?: {
         comment?: string;
         mark_mid?: string;
@@ -220,6 +223,7 @@ export async function updateProject(params: {
                 "desciption.attach": params.discription?.attach,
                 research_area: params.research_area,
                 report: report,
+                semester: params.semester,
                 source_code: params.source_code,
                 "rate.comment": params.rate?.comment,
                 "rate.mark_mid": params.rate?.mark_mid,

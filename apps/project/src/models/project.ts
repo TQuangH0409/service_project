@@ -100,6 +100,10 @@ const projectSchema = new mongoose.Schema(
             type: String,
             require: true,
         },
+        semester: {
+            type: String,
+            require: true,
+        },
         teacher_instruct_id: {
             type: String,
             require: true,
