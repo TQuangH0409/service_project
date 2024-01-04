@@ -16,6 +16,7 @@ import Assignment from "../models/assignment";
 export async function handle(params: { limit: number; type: ETYPE }) {}
 
 export async function handleReview(params: {
+    semester: string;
     limit?: number;
     userId: string;
     type: string;
@@ -220,6 +221,7 @@ export async function handleReview(params: {
 }
 
 export async function handleInstruct(params: {
+    semester: string;
     limit?: number;
     userId: string;
     type: string;
@@ -231,11 +233,15 @@ export async function handleInstruct(params: {
 
     const teachers = await getAllUserByPosition({ position: "TEACHER" });
 
-    const students = await getAllUserByPosition({ position: "STUDENT" });
+    const students = await getAllUserByPosition({
+        position: "STUDENT",
+        semester: params.semester,
+    });
 
     const assignments: IAssignment[] = [];
-    const arrayT_S: (number | string)[][] = (await getArrayTeacherStudent())
-        .data;
+    const arrayT_S: (number | string)[][] = (
+        await getArrayTeacherStudent({ semester: params.semester })
+    ).data;
 
     if (!(students && students.body)) {
         throw new HttpError({
@@ -580,9 +586,12 @@ export async function getArrayTeacherProject(): Promise<ResultSuccess> {
 }
 
 // thiet lap array teacher - student
-export async function getArrayTeacherStudent(): Promise<ResultSuccess> {
-    const students: (number | string)[][] = (await getArraySpecializeStudent())
-        .data;
+export async function getArrayTeacherStudent(params: {
+    semester: string;
+}): Promise<ResultSuccess> {
+    const students: (number | string)[][] = (
+        await getArraySpecializeStudent({ semester: params.semester })
+    ).data;
     const teachers: (number | string)[][] = (await getArraySpecializeTeacher())
         .data;
 
@@ -631,10 +640,15 @@ export async function getArrayTeacherStudent(): Promise<ResultSuccess> {
 }
 
 // thiết lập array student - specialize
-export async function getArraySpecializeStudent(): Promise<ResultSuccess> {
+export async function getArraySpecializeStudent(params: {
+    semester: string;
+}): Promise<ResultSuccess> {
     const array: number[][] = [];
     const array2: (number | string)[][] = [];
-    const students = await getAllUserByPosition({ position: "STUDENT" });
+    const students = await getAllUserByPosition({
+        position: "STUDENT",
+        semester: params.semester,
+    });
     const reseach_areas = await getAllResearchAreas();
 
     if (!(students && students.body)) {

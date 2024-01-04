@@ -21,13 +21,14 @@ export async function checkUserExits(params: {
 
 export async function getAllUserByPosition(params: {
     position: string;
+    semester?: string;
 }): Promise<{
     body?: IUser[];
     status?: number;
 }> {
     const url = `${configs.services.ad.getUrl()}users/position/${
         params.position
-    }`;
+    }?semester=${params.semester}`;
     try {
         const res = await axios.get<IUser[]>(`${url}`);
         return { body: res.data };

@@ -16,7 +16,8 @@ import {
 export const router = express.Router();
 
 router.get("/S-S", async (req: Request, _: Response, next: NextFunction) => {
-    const result = await getArraySpecializeStudent();
+    const semester = req.query.semester as string;
+    const result = await getArraySpecializeStudent({ semester: semester });
 
     next(result);
 });
@@ -34,7 +35,8 @@ router.get("/S-P", async (req: Request, _: Response, next: NextFunction) => {
 });
 
 router.get("/T-St", async (req: Request, _: Response, next: NextFunction) => {
-    const result = await getArrayTeacherStudent();
+    const semester = req.query.semester as string;
+    const result = await getArrayTeacherStudent({ semester: semester });
 
     next(result);
 });
@@ -52,6 +54,7 @@ router.get(
             limit: req.query.limit as unknown as number,
             userId: "",
             type: req.query.type as string,
+            semester: req.query.semester as string,
         });
 
         next(result);
@@ -63,6 +66,7 @@ router.get("/review", async (req: Request, _: Response, next: NextFunction) => {
         limit: req.query.limit as unknown as number,
         userId: "",
         type: req.query.type as string,
+        semester: req.query.semester as string,
     });
 
     next(result);

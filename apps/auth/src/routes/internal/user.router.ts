@@ -35,9 +35,11 @@ router.get(
     findUserValidator(),
     async (req: Request, _: Response, next: NextFunction) => {
         const position = req.params.position as string;
+        const semester = req.query.semester as string;
         const result = await getAllUserByPosition({
             position,
             type: true,
+            semester,
         });
         next(result);
     }
