@@ -50,7 +50,7 @@ router.delete(
 
 router.get(
     "/",
-    verifyRole("SA"),
+    verifyRole("SA", "T", "S"),
     findReaserchAreaValidator(),
     async (req: Request, _: Response, next: NextFunction) => {
         const query = req.query as unknown as FindReqQuery;
