@@ -681,6 +681,10 @@ export async function getAllUserByPosition(params: {
         email: 1,
         position: 1,
         research_area: 1,
+        school: 1,
+        class: 1,
+        gen: 1,
+        degree: 1,
     }).then((res) => {
         const result = res.map(async (u) => {
             let research_area: {
