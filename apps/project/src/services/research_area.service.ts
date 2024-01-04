@@ -3,7 +3,6 @@ import { configs } from "../configs";
 import { IResearchArea } from "../interfaces/response/research_area.body";
 import { HttpError, ResultSuccess, error } from "app";
 
-
 export async function getResearchAreaByNumber(number: string): Promise<{
     body?: IResearchArea;
     status?: number;
@@ -20,7 +19,6 @@ export async function getResearchAreaByNumber(number: string): Promise<{
         }
     }
 }
-
 
 export async function checkResearchAreasExits(params: {
     numbers: string[];

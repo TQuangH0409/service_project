@@ -1,7 +1,11 @@
 import { error, HttpError, HttpStatus } from "app";
 import axios from "axios";
 import { configs } from "../configs";
-import { FileDBResBody, FileGoogleAPIResBody, FileUrlResBody } from "../interfaces/response";
+import {
+    FileDBResBody,
+    FileGoogleAPIResBody,
+    FileUrlResBody,
+} from "../interfaces/response";
 
 export async function getInfoFileGoogleApi(id: string): Promise<{
     body?: FileGoogleAPIResBody;

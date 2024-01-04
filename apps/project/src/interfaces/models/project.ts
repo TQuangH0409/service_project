@@ -45,5 +45,3 @@ export interface IReport {
     uploaded_by: string;
     created_time: Date;
 }
-
-

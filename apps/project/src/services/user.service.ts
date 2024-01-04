@@ -1,4 +1,4 @@
-import { HttpError, Result, error } from "app";
+import { HttpError, error } from "app";
 import { configs } from "../configs";
 import axios from "axios";
 import { IUser } from "../interfaces/response/user.body";
@@ -18,4 +18,3 @@ export async function checkUserExits(params: {
         }
     }
 }
-

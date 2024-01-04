@@ -1,7 +1,7 @@
 import { HttpError, HttpStatus, ResultSuccess, error, success } from "app";
 import Project from "../models/project";
 import { checkUserExits } from "../services/user.service";
-import { IProject, IReport } from "../interfaces/models/project";
+import { IProject } from "../interfaces/models/project";
 import { v1 } from "uuid";
 import { FilterQuery, PipelineStage } from "mongoose";
 import {
@@ -113,10 +113,6 @@ export async function createdProject(params: {
         }
     }
 
-    const count = await Project.count({
-        teacher_instruct_id: params.userId,
-    });
-
     const project = new Project({
         id: v1(),
         name: params.name,
@@ -165,7 +161,7 @@ export async function updateProject(params: {
         content?: string;
         attach?: string;
     };
-    research_area: String[];
+    research_area: string[];
     report?: string[];
     source_code?: string;
     semester?: string;
@@ -654,7 +650,7 @@ export async function checkProjectExits(params: {
 export async function getAllProjects(params: {
     semester?: string;
 }): Promise<ResultSuccess> {
-    let filter = params.semester
+    const filter = params.semester
         ? { is_active: true, semester: params.semester }
         : { is_active: true };
 

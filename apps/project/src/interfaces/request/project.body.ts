@@ -1,5 +1,3 @@
-import { IReport } from "../models/project";
-
 export interface IProjectReqBody {
     name: string;
     student_id: string;

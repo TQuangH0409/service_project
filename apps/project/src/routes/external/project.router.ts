@@ -25,7 +25,7 @@ router.post(
     async (req: Request, _: Response, next: NextFunction) => {
         const query = req.body as IProjectReqBody;
         const userId = req.payload?.id as string;
-        const result = await createdProject({ ...query, userId : userId });
+        const result = await createdProject({ ...query, userId: userId });
         next(result);
     }
 );
