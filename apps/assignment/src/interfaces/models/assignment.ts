@@ -4,6 +4,7 @@ export interface IAssignment {
     id: string;
     type: ETYPE;
     semester: string;
+    limit: number;
     student: IUserAss[];
     teacher: IUserAss;
     project: IProjectAss[];

@@ -18,6 +18,10 @@ const assignmentSchema = new mongoose.Schema(
             type: String,
             require: true,
         },
+        limit: {
+            type: String,
+            require: true,
+        },
         student: {
             type: [
                 {

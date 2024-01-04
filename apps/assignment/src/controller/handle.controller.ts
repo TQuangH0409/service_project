@@ -167,6 +167,7 @@ export async function handleReview(params: {
         if (decision === undefined) {
             const assignment: IAssignment = {
                 semester: params.semester,
+                limit: limit,
                 teacher: { ...teachers.body![temp - 1] },
                 project: [
                     {
@@ -380,6 +381,7 @@ export async function handleInstruct(params: {
         if (decision === undefined) {
             const assignment: IAssignment = {
                 semester: params.semester,
+                limit: limit,
                 teacher: { ...teachers.body![temp - 1] },
                 student: [
                     {

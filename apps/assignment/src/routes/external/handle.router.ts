@@ -9,6 +9,7 @@ import {
     handleReview,
 } from "../../controller/handle.controller";
 import {
+    getAssBySemester,
     getAssedStudentByTeacher,
     getAssignment,
 } from "../../controller/assignment.controller";
@@ -80,6 +81,20 @@ router.get(
         const result = await getAssedStudentByTeacher({
             teacher: req.params.id as unknown as string,
             type: req.query.type as string,
+        });
+
+        next(result);
+    }
+);
+
+router.get(
+    "/semester/:semester",
+    async (req: Request, _: Response, next: NextFunction) => {
+        const { type } = req.query;
+        const semester = req.params.semester as string;
+        const result = await getAssBySemester({
+            semester: semester as string,
+            type: type as string,
         });
 
         next(result);
