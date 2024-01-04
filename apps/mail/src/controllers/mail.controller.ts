@@ -231,12 +231,10 @@ export async function sendMailGoogleInstruct(params: {
         fullname: string;
         email: string;
     };
-    student: [
-        {
-            fullname: string;
-            email: string;
-        }
-    ];
+    student:[ {
+        fullname: string;
+        email: string;
+    }];
 }): Promise<ResultSuccess> {
     // Đường dẫn URL đến file cần tải
 
@@ -282,7 +280,6 @@ export async function sendMailGoogleInstruct(params: {
     });
     return success.ok({ message: "successful" });
 }
-
 
 export async function sendMailGoogleReview(params: {
     teacher: {

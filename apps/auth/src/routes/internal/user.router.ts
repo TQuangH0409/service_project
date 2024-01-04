@@ -11,8 +11,6 @@ import { findUserByIdsValidator, findUserValidator } from "../../validator";
 import {
     FindUserByEmailReqQuery,
     FindReqQuery,
-    FindUserByIdAndTenantCodeReqQuery,
-    UpdateUserReqBody,
 } from "../../interfaces/request";
 
 export const router: Router = Router();
@@ -76,7 +74,7 @@ router.get(
 router.put(
     "/update/:userId",
     async (req: Request, _: Response, next: NextFunction) => {
-        const body: UpdateUserReqBody = req.body;
+        const body = req.body;
         const roles: string[] = req.body.userRoles;
         const userId: string = req.body.userId;
         const id = req.params.userId as string;

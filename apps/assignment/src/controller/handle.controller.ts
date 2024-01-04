@@ -12,6 +12,7 @@ import { IProject } from "../interfaces/response/project.body";
 import { IArray_Assignment } from "../interfaces/response/assignment.body";
 import { IUser } from "../interfaces/response/user.body";
 import Assignment from "../models/assignment";
+import { sendMailGoogleInstruct } from "../services";
 
 export async function handle(params: { limit: number; type: ETYPE }) {}
 
@@ -213,6 +214,8 @@ export async function handleReview(params: {
 
     if (params.type !== "DRAFT") {
         await Assignment.create(assignments);
+
+        
     }
 
     const result: IArray_Assignment = {
@@ -426,6 +429,43 @@ export async function handleInstruct(params: {
 
     if (params.type !== "DRAFT") {
         await Assignment.create(assignments);
+
+        const dataMail: {
+            teacher: {
+                fullname: string;
+                email: string;
+            };
+            student: {
+                fullname: string;
+                email: string;
+            }[];
+        }[] = assignments.map((ass) => {
+            const student: {
+                fullname: string;
+                email: string;
+            }[] = ass.student.map((s) => {
+                return {
+                    fullname: s.fullname,
+                    email: s.email,
+                };
+            });
+            return {
+                teacher: {
+                    fullname: ass.teacher.fullname,
+                    email: ass.teacher.email,
+                },
+                student: student,
+            };
+        });
+
+        await Promise.all(
+            dataMail.map((d) => {
+                return sendMailGoogleInstruct({
+                    teacher: d.teacher,
+                    student: [...d.student],
+                });
+            })
+        );
     }
 
     const result: IArray_Assignment = {
