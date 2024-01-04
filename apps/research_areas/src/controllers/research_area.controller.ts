@@ -118,7 +118,7 @@ export async function deleteResearchArea(params: {
         });
     }
 
-    const research_area = await ResearchArea.findOneAndUpdate(
+    await ResearchArea.findOneAndUpdate(
         { id: params.id },
         {
             $set: {

@@ -41,20 +41,30 @@ export const configs = {
         },
     },
     log: {
-        logFileEnabled: process.env.CA_RESEARCH_AREAS_LOG_FILE_ENABLED || "false",
+        logFileEnabled:
+            process.env.CA_RESEARCH_AREAS_LOG_FILE_ENABLED || "false",
         folderLogsPath:
-            process.env.CA_RESEARCH_AREAS_FOLDER_LOGS_PATH || `${__dirname}/../../logs`,
+            process.env.CA_RESEARCH_AREAS_FOLDER_LOGS_PATH ||
+            `${__dirname}/../../logs`,
 
-        logstashEnabled: process.env.CA_RESEARCH_AREAS_LOG_LOGSTASH_ENABLED || "false",
-        logstashHost: process.env.CA_RESEARCH_AREAS_LOG_LOGSTASH_HOST || "127.0.0.1",
-        logstashPort: process.env.CA_RESEARCH_AREAS_LOG_LOGSTASH_PORT || "50001",
-        logstashProtocol: process.env.CA_RESEARCH_AREAS_LOG_LOGSTASH_PROTOCOL || "udp",
+        logstashEnabled:
+            process.env.CA_RESEARCH_AREAS_LOG_LOGSTASH_ENABLED || "false",
+        logstashHost:
+            process.env.CA_RESEARCH_AREAS_LOG_LOGSTASH_HOST || "127.0.0.1",
+        logstashPort:
+            process.env.CA_RESEARCH_AREAS_LOG_LOGSTASH_PORT || "50001",
+        logstashProtocol:
+            process.env.CA_RESEARCH_AREAS_LOG_LOGSTASH_PROTOCOL || "udp",
     },
     saltRounds: process.env.CA_RESEARCH_AREAS_SALT_ROUNDS || "10",
     services: {
         ad: {
-            prefix: process.env.CA_RESEARCH_AREAS_AD_SERVICE_PREFIX || "/api/v1/in/",
-            host: process.env.CA_RESEARCH_AREAS_AD_SERVICE_HOST || "http://127.0.0.1",
+            prefix:
+                process.env.CA_RESEARCH_AREAS_AD_SERVICE_PREFIX ||
+                "/api/v1/in/",
+            host:
+                process.env.CA_RESEARCH_AREAS_AD_SERVICE_HOST ||
+                "http://127.0.0.1",
             port: process.env.CA_RESEARCH_AREAS_AD_SERVICE_PORT || "6801",
             getUrl: function (): string {
                 return `${this.host}:${this.port}${this.prefix}`;
@@ -62,8 +72,11 @@ export const configs = {
         },
         mail: {
             prefix:
-                process.env.CA_RESEARCH_AREAS_MAIL_SERVICE_PREFIX || "/api/v1/in/mail",
-            host: process.env.CA_RESEARCH_AREAS_MAIL_SERVICE_HOST || "http://127.0.0.1",
+                process.env.CA_RESEARCH_AREAS_MAIL_SERVICE_PREFIX ||
+                "/api/v1/in/mail",
+            host:
+                process.env.CA_RESEARCH_AREAS_MAIL_SERVICE_HOST ||
+                "http://127.0.0.1",
             port: process.env.CA_RESEARCH_AREAS_MAIL_SERVICE_PORT || "6803",
             getUrl: function (): string {
                 return `${this.host}:${this.port}${this.prefix}`;
@@ -71,8 +84,11 @@ export const configs = {
         },
         file: {
             prefix:
-                process.env.CA_RESEARCH_AREAS_FILE_SERVICE_PREFIX || "/api/v1/in/files",
-            host: process.env.CA_RESEARCH_AREAS_FILE_SERVICE_HOST || "http://127.0.0.1",
+                process.env.CA_RESEARCH_AREAS_FILE_SERVICE_PREFIX ||
+                "/api/v1/in/files",
+            host:
+                process.env.CA_RESEARCH_AREAS_FILE_SERVICE_HOST ||
+                "http://127.0.0.1",
             port: process.env.CA_RESEARCH_AREAS_FILE_SERVICE_PORT || "6802",
             getUrl: function (): string {
                 return `${this.host}:${this.port}${this.prefix}`;

@@ -21,11 +21,8 @@ router.get(
     }
 );
 
-router.post(
-    "/check",
-    async (req: Request, _: Response, next: NextFunction) => {
-        const numbers = req.body.numbers as string[];
-        const result = await checkResearchAreasExits({ numbers });
-        next(result);
-    }
-);
+router.post("/check", async (req: Request, _: Response, next: NextFunction) => {
+    const numbers = req.body.numbers as string[];
+    const result = await checkResearchAreasExits({ numbers });
+    next(result);
+});

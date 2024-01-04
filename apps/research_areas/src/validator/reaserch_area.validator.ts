@@ -2,7 +2,10 @@ import { handleValidation } from "app";
 import { RequestHandler } from "express";
 import { ValidationChain, query } from "express-validator";
 
-export const findReaserchAreaValidator = (): (ValidationChain | RequestHandler)[] => [
+export const findReaserchAreaValidator = (): (
+    | ValidationChain
+    | RequestHandler
+)[] => [
     query("size").replace([null, undefined], 10),
     query("page").replace([null, undefined], 0),
 
