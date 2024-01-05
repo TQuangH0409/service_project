@@ -81,6 +81,7 @@ router.get(
         const result = await getAssedStudentByTeacher({
             teacher: req.params.id as unknown as string,
             type: req.query.type as string,
+            semester: req.query.semester as string,
         });
 
         next(result);

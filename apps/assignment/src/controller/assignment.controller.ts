@@ -147,10 +147,12 @@ export async function getAssignment(params: {
 export async function getAssedStudentByTeacher(params: {
     teacher: string;
     type: string;
+    semester: string;
 }): Promise<ResultSuccess> {
     const ass = await Assignment.findOne({
         "teacher.id": params.teacher,
         type: params.type,
+        semester: params.semester
     });
 
     if (!ass) {
