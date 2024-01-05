@@ -558,7 +558,14 @@ export async function importUser(params: {
             roles: u.roles,
         };
     });
-    await Promise.all([createAccount(accounts), User.insertMany(users)]);
+    const mails = params.data.map((u) => {
+        return sendMailGoogleNewAccount({
+            username: u.fullname,
+            password: u.password,
+            email: u.email,
+        });
+    });
+    await Promise.all([createAccount(accounts), User.insertMany(users), mails]);
     return success.created({ inserted: params.data.length });
 }
 
