@@ -534,6 +534,7 @@ export async function importUser(params: {
             gen: u.gen,
             degree: u.degree,
             avatar: u.avatar,
+            semester: u.semester,
             research_area: u.research_area,
             is_active: u.is_active,
             activities: [

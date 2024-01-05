@@ -42,6 +42,7 @@ export interface UserImport {
     school?: string;
     gen?: string;
     degree?: string;
+    semester?: string;
     is_active: boolean;
 }
 
