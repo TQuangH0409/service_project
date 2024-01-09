@@ -9,7 +9,8 @@ import {
 import File from "../models/file";
 import { google } from "googleapis";
 import { configs } from "../configs";
-import { PassThrough } from "stream";
+import { PassThrough, Readable } from "stream";
+import fs from "fs";
 
 const oauth2Client = new google.auth.OAuth2(
     configs.googleapis.client_id,
@@ -180,3 +181,36 @@ export async function getFileByIdInDB(params: {
 
     return success.ok(check);
 }
+
+export async function getFileContent(fileId: string): Promise<ResultSuccess> {
+    try {
+      const response = await drive.files.get(
+        {
+          fileId: fileId,
+          alt: "media",
+        },
+        { responseType: "stream" }
+      );
+  
+      const fileStream = response.data as Readable;
+  
+      return new Promise<ResultSuccess>((resolve, reject) => {
+        const chunks: any[] = [];
+        fileStream.on("data", (chunk) => {
+          chunks.push(chunk);
+        });
+  
+        fileStream.on("end", () => {
+          const fileContent = Buffer.concat(chunks).toString("utf-8");
+          resolve(success.ok({content: fileContent}));
+        });
+  
+        fileStream.on("error", (err) => {
+          reject(err);
+        });
+      });
+    } catch (error) {
+      console.error("Error fetching file content:", error);
+      throw error;
+    }
+  }

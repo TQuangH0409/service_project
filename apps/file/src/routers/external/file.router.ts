@@ -2,6 +2,7 @@ import { HttpError, HttpStatus, ResultError } from "app";
 import express, { NextFunction, Request, Response } from "express";
 import {
     getFileByIdInDB,
+    getFileContent,
     getInfoFile,
     getPublicURL,
     uploadFile,
@@ -41,10 +42,10 @@ router.post(
 );
 
 router.get(
-    "/:fileId",
+    "/content/:fileId",
     async (req: Request, _: Response, next: NextFunction) => {
-        const fileId = req.params.fileId as string;
-        const result = await getPublicURL(fileId);
+        const file = req.params.fileId as string;
+        const result = await getFileContent(file);
         next(result);
     }
 );
@@ -63,6 +64,15 @@ router.get(
     async (req: Request, _: Response, next: NextFunction) => {
         const id = req.params.fileId as string;
         const result = await getFileByIdInDB({ id });
+        next(result);
+    }
+);
+
+router.get(
+    "/:fileId",
+    async (req: Request, _: Response, next: NextFunction) => {
+        const fileId = req.params.fileId as string;
+        const result = await getPublicURL(fileId);
         next(result);
     }
 );
