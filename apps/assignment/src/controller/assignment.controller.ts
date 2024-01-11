@@ -266,33 +266,33 @@ export async function getAssBySemester(params: {
                 };
             });
 
-            projects = await Promise.all(
-                projects.map(async (p) => {
-                    const studentRes = await _getUserById({
-                        userId: p.student_id || "",
-                    });
-                    const teacherRes = await _getUserById({
-                        userId: p.teacher_instruct_id || "",
-                    });
+            // projects = await Promise.all(
+            //     projects.map(async (p) => {
+            //         const studentRes = await _getUserById({
+            //             userId: p.student_id || "",
+            //         });
+            //         const teacherRes = await _getUserById({
+            //             userId: p.teacher_instruct_id || "",
+            //         });
 
-                    const student = studentRes.body;
-                    const teacher = teacherRes.body;
+            //         const student = studentRes.body;
+            //         const teacher = teacherRes.body;
 
-                    return {
-                        ...p,
-                        coincidence: p.coincidence,
-                        student: student,
-                        teacher: teacher,
-                        student_id: undefined,
-                        teacher_instruct_id: undefined,
-                    };
-                })
-            );
+            //         return {
+            //             ...p,
+            //             coincidence: p.coincidence,
+            //             student: student,
+            //             teacher: teacher,
+            //             student_id: undefined,
+            //             teacher_instruct_id: undefined,
+            //         };
+            //     })
+            // );
 
             const ru = Object.assign(
                 { ...t },
-                { projects: projects },
-                { project: undefined }
+                { project: projects }
+                // { project: undefined }
             );
 
             result.push(ru);
