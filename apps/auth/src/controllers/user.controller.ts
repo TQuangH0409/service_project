@@ -519,8 +519,9 @@ export async function importUser(params: {
 }): Promise<Result> {
     await validateImportData(params);
     const createUser = params.data.map(async (u) => {
+        const id = v1();
         return {
-            id: v1(),
+            id: id,
             fullname: u.fullname,
             email: u.email,
             number: u.number,
