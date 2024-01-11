@@ -6,6 +6,7 @@ export interface IUser {
     position: string;
     research_area: IResearchAreaT[];
     school: string;
+    avatar?: string;
 }
 
 export interface IResearchAreaT {

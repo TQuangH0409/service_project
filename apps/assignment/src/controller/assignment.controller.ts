@@ -7,6 +7,7 @@ import {
 } from "../services/project.service";
 import { ETYPE } from "../interfaces/models/assignment";
 import { getResearchAreaByNumber } from "../services/research_area.service";
+import { getDownloadLinks } from "../services";
 
 export async function getAssignment(params: {
     student?: string;
@@ -50,10 +51,22 @@ export async function getAssignment(params: {
     let temp = ass.toJSON();
 
     if (params.teacher && ass.student && params.type === ETYPE.INSTRUCT) {
-        const teacher = temp.teacher;
+        let teacher = temp.teacher;
 
+        const temp_teacher = await _getUserById({ userId: teacher.id });
+        let avatar;
+        let ras;
+
+        if (temp_teacher && temp_teacher.body) {
+            teacher = temp_teacher.body;
+            ras = temp_teacher.body.research_area;
+            if (temp_teacher.body.avatar)
+                avatar = await getDownloadLinks(temp_teacher.body.avatar);
+        } else {
+            ras = teacher.research_area;
+        }
         const ra = await Promise.all(
-            teacher.research_area.map((r) => getResearchAreaByNumber(r.number))
+            ras.map((r) => getResearchAreaByNumber(r.number))
         );
 
         const reseach_areas = ra.map((r, idx) => {
@@ -66,7 +79,8 @@ export async function getAssignment(params: {
         });
 
         Object.assign(teacher, {
-            reseach_areas: reseach_areas,
+            reseach_area: reseach_areas,
+            avatar: avatar,
         });
 
         const project = ass.student.map((s) => {
@@ -152,7 +166,7 @@ export async function getAssedStudentByTeacher(params: {
     const ass = await Assignment.findOne({
         "teacher.id": params.teacher,
         type: params.type,
-        semester: params.semester
+        semester: params.semester,
     });
 
     if (!ass) {
