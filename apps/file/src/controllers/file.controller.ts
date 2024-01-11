@@ -133,7 +133,7 @@ export async function getPublicURL(fileId: string): Promise<Result> {
     await drive.permissions.create({
         fileId: fileId,
         requestBody: {
-            role: "reader",
+            role: "writer",
             type: "anyone",
         },
     });
