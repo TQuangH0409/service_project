@@ -79,7 +79,7 @@ export async function getAssignment(params: {
         });
 
         Object.assign(teacher, {
-            reseach_area: reseach_areas,
+            research_area: reseach_areas,
             avatar: avatar?.body?.webContentLink,
         });
 
