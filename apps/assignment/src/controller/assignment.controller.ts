@@ -80,7 +80,7 @@ export async function getAssignment(params: {
 
         Object.assign(teacher, {
             reseach_area: reseach_areas,
-            avatar: avatar,
+            avatar: avatar?.body?.webContentLink,
         });
 
         const project = ass.student.map((s) => {
