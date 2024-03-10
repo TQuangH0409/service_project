@@ -1,11 +1,13 @@
 node {
   stage("Preparation"){
-    println("I'm qang")
+    println("I'm Preparation")
+    sh 'sleep 1000'
   }
-   stage("Preparation"){
-    println("I'm qang")
+   stage("Build"){
+    println("I'm Build")
+    sh 'sleep 1000'
   }
-   stage("Preparation"){
-    println("I'm qang")
+   stage("Deploy"){
+    println("I'm Build")
   }
 }
